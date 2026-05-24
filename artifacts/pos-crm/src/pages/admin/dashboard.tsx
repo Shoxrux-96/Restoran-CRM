@@ -1,4 +1,4 @@
-import { useGetVenueSummary } from "@workspace/api-client-react";
+import { useGetVenueSummary, getGetVenueSummaryQueryKey } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, AlertCircle, ShoppingBag, Clock } from "lucide-react";
@@ -23,7 +23,7 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const venueId = user?.venueId ?? 0;
   const { data, isLoading } = useGetVenueSummary(venueId, {
-    query: { enabled: !!venueId },
+    query: { enabled: !!venueId, queryKey: getGetVenueSummaryQueryKey(venueId) },
   });
 
   if (isLoading) return <div className="text-zinc-400">Yuklanmoqda...</div>;

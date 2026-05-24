@@ -28,7 +28,7 @@ const emptyForm = { name: "", price: "", category: "", description: "", isAvaila
 export default function AdminProducts() {
   const { user } = useAuth();
   const venueId = user?.venueId ?? 0;
-  const { data: products, isLoading } = useListProducts(venueId, { query: { enabled: !!venueId } });
+  const { data: products, isLoading } = useListProducts(venueId, { query: { enabled: !!venueId, queryKey: getListProductsQueryKey(venueId) } });
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
@@ -56,7 +56,7 @@ export default function AdminProducts() {
   const handleSave = () => {
     const data = { name: form.name, price: Number(form.price), category: form.category, description: form.description || undefined, isAvailable: form.isAvailable };
     if (editing) {
-      updateProduct.mutate({ id: editing.id, data }, {
+      updateProduct.mutate({ venueId, id: editing.id, data }, {
         onSuccess: () => { invalidate(); setOpen(false); toast({ title: "Yangilandi" }); },
         onError: () => toast({ title: "Xatolik", variant: "destructive" }),
       });
@@ -70,7 +70,7 @@ export default function AdminProducts() {
 
   const handleDelete = (id: number) => {
     if (!confirm("O'chirishni tasdiqlaysizmi?")) return;
-    deleteProduct.mutate({ id }, {
+    deleteProduct.mutate({ venueId, id }, {
       onSuccess: () => { invalidate(); toast({ title: "O'chirildi" }); },
     });
   };

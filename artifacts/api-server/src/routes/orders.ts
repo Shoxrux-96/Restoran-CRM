@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, ordersTable, customersTable, debtsTable, productsTable, orderItemsTable } from "@workspace/db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import { requireAuth } from "../lib/auth";
 
 const router: IRouter = Router();
@@ -57,7 +57,7 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
   const products = await db
     .select()
     .from(productsTable)
-    .where(sql`${productsTable.id} = ANY(${productIds})`);
+    .where(inArray(productsTable.id, productIds));
   const productMap = new Map(products.map((p) => [p.id, p]));
 
   let totalAmount = 0;
@@ -148,7 +148,6 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
 router.get("/venues/:venueId/orders/:id", requireAuth, async (req, res): Promise<void> => {
   const venueId = parseId(req.params.venueId);
   const id = parseId(req.params.id);
-  const orderItemsTable = db._.fullSchema.orderItemsTable;
 
   const [order] = await db
     .select()
@@ -163,6 +162,7 @@ router.get("/venues/:venueId/orders/:id", requireAuth, async (req, res): Promise
     .select()
     .from(orderItemsTable)
     .where(eq(orderItemsTable.orderId, id));
+
 
   let customerName: string | null = null;
   if (order.customerId) {

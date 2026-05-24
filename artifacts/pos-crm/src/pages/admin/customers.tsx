@@ -4,6 +4,7 @@ import {
   useCreateCustomer,
   useListDebts,
   getListCustomersQueryKey,
+  getListDebtsQueryKey,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
@@ -22,8 +23,8 @@ function fmt(n: number) {
 export default function AdminCustomers() {
   const { user } = useAuth();
   const venueId = user?.venueId ?? 0;
-  const { data: customers, isLoading } = useListCustomers(venueId, { query: { enabled: !!venueId } });
-  const { data: debts } = useListDebts(venueId, { query: { enabled: !!venueId } });
+  const { data: customers, isLoading } = useListCustomers(venueId, { query: { enabled: !!venueId, queryKey: getListCustomersQueryKey(venueId) } });
+  const { data: debts } = useListDebts(venueId, { query: { enabled: !!venueId, queryKey: getListDebtsQueryKey(venueId) } });
   const createCustomer = useCreateCustomer();
   const qc = useQueryClient();
   const { toast } = useToast();

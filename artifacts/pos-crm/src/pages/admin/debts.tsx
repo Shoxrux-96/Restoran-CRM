@@ -23,7 +23,7 @@ function fmt(n: number) {
 export default function AdminDebts() {
   const { user } = useAuth();
   const venueId = user?.venueId ?? 0;
-  const { data: debts, isLoading } = useListDebts(venueId, { query: { enabled: !!venueId } });
+  const { data: debts, isLoading } = useListDebts(venueId, { query: { enabled: !!venueId, queryKey: getListDebtsQueryKey(venueId) } });
   const payDebt = usePayDebt();
   const qc = useQueryClient();
   const { toast } = useToast();
@@ -46,7 +46,7 @@ export default function AdminDebts() {
     if (!amount || amount <= 0) return;
 
     payDebt.mutate(
-      { id: payingDebt.id, data: { amount } },
+      { venueId, id: payingDebt.id, data: { amount } },
       {
         onSuccess: () => {
           qc.invalidateQueries({ queryKey: getListDebtsQueryKey(venueId) });
