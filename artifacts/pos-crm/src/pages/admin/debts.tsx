@@ -13,37 +13,61 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Receipt, Phone, CheckCircle } from "lucide-react";
+import { Receipt, Phone, CheckCircle, AlertCircle, Clock, Search, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function fmt(n: number) {
-  return new Intl.NumberFormat("uz-UZ").format(n) + " so'm";
+  return new Intl.NumberFormat("uz-UZ").format(Math.round(n)) + " so'm";
+}
+
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("uz-UZ", { day: "2-digit", month: "2-digit", year: "numeric" });
 }
 
 export default function AdminDebts() {
   const { user } = useAuth();
   const venueId = user?.venueId ?? 0;
-  const { data: debts, isLoading } = useListDebts(venueId, { query: { enabled: !!venueId, queryKey: getListDebtsQueryKey(venueId) } });
+  const { data: debts, isLoading } = useListDebts(venueId, {
+    query: { enabled: !!venueId, queryKey: getListDebtsQueryKey(venueId) },
+  });
   const payDebt = usePayDebt();
   const qc = useQueryClient();
   const { toast } = useToast();
+
   const [payingDebt, setPayingDebt] = useState<Debt | null>(null);
   const [payAmount, setPayAmount] = useState("");
-  const [filter, setFilter] = useState<"all" | "unpaid" | "paid">("unpaid");
+  const [filter, setFilter] = useState<"unpaid" | "partial" | "all" | "paid">("unpaid");
+  const [search, setSearch] = useState("");
 
   const filtered = (debts ?? []).filter((d) => {
-    if (filter === "all") return true;
-    return d.status === filter;
+    const matchFilter =
+      filter === "all" ? true :
+      filter === "unpaid" ? (d.status === "unpaid" || d.status === "partial") :
+      d.status === filter;
+    const matchSearch = search.length === 0 || d.customerName.toLowerCase().includes(search.toLowerCase());
+    return matchFilter && matchSearch;
   });
 
   const totalUnpaid = (debts ?? [])
     .filter((d) => d.status !== "paid")
     .reduce((sum, d) => sum + (d.remaining ?? d.amount), 0);
 
+  const unpaidCount = (debts ?? []).filter((d) => d.status === "unpaid").length;
+  const partialCount = (debts ?? []).filter((d) => d.status === "partial").length;
+  const paidCount = (debts ?? []).filter((d) => d.status === "paid").length;
+
   const handlePay = () => {
     if (!payingDebt) return;
     const amount = Number(payAmount);
-    if (!amount || amount <= 0) return;
+    if (!amount || amount <= 0) {
+      toast({ title: "Miqdorni kiriting", variant: "destructive" });
+      return;
+    }
+    const maxPay = payingDebt.remaining ?? payingDebt.amount;
+    if (amount > maxPay) {
+      toast({ title: `Maksimal to'lov: ${fmt(maxPay)}`, variant: "destructive" });
+      return;
+    }
 
     payDebt.mutate(
       { venueId, id: payingDebt.id, data: { amount } },
@@ -52,121 +76,252 @@ export default function AdminDebts() {
           qc.invalidateQueries({ queryKey: getListDebtsQueryKey(venueId) });
           setPayingDebt(null);
           setPayAmount("");
-          toast({ title: "To'lov qabul qilindi" });
+          toast({ title: "✅ To'lov qabul qilindi" });
         },
-        onError: () => toast({ title: "Xatolik", variant: "destructive" }),
+        onError: () => toast({ title: "Xatolik yuz berdi", variant: "destructive" }),
       }
     );
   };
 
   const statusBadge = (status: string) => {
-    if (status === "paid") return <Badge className="bg-green-600/20 text-green-400 border-green-800">To'langan</Badge>;
-    if (status === "partial") return <Badge className="bg-yellow-600/20 text-yellow-400 border-yellow-800">Qisman</Badge>;
-    return <Badge className="bg-red-600/20 text-red-400 border-red-800">To'lanmagan</Badge>;
+    if (status === "paid")
+      return <Badge className="bg-green-600/20 text-green-400 border-green-800 text-xs">✓ To'langan</Badge>;
+    if (status === "partial")
+      return <Badge className="bg-yellow-600/20 text-yellow-400 border-yellow-800 text-xs">◑ Qisman</Badge>;
+    return <Badge className="bg-red-600/20 text-red-400 border-red-800 text-xs">✕ To'lanmagan</Badge>;
   };
 
+  const filterBtns = [
+    { key: "unpaid" as const, label: "Qarzdorlar", count: unpaidCount + partialCount, color: "text-red-400" },
+    { key: "partial" as const, label: "Qisman", count: partialCount, color: "text-yellow-400" },
+    { key: "paid" as const, label: "To'langan", count: paidCount, color: "text-green-400" },
+    { key: "all" as const, label: "Barchasi", count: debts?.length ?? 0, color: "text-zinc-400" },
+  ];
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-white">Qarz Daftar</h1>
-        <p className="text-zinc-400 mt-1">Jami to'lanmagan: <span className="text-red-400 font-semibold">{fmt(totalUnpaid)}</span></p>
+        <p className="text-zinc-400 mt-1">Qarzga savdo qilgan mijozlar ro'yxati</p>
       </div>
 
-      <div className="flex gap-2">
-        {(["unpaid", "all", "paid"] as const).map((f) => (
-          <Button
-            key={f}
-            variant={filter === f ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFilter(f)}
-            className={filter === f ? "bg-blue-600 hover:bg-blue-700" : "border-zinc-700 text-zinc-400 hover:text-white"}
-          >
-            {f === "unpaid" ? "To'lanmagan" : f === "paid" ? "To'langan" : "Barchasi"}
-          </Button>
-        ))}
+      {/* Summary cards */}
+      <div className="grid grid-cols-3 gap-3">
+        <Card className="bg-zinc-950 border-zinc-800">
+          <CardContent className="pt-4 pb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-zinc-500">Jami qarzdorlar</span>
+              <AlertCircle className="h-3.5 w-3.5 text-red-500" />
+            </div>
+            <p className="text-xl font-bold text-red-400">{unpaidCount + partialCount} ta</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-zinc-950 border-zinc-800">
+          <CardContent className="pt-4 pb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-zinc-500">Jami qarz summasi</span>
+              <Wallet className="h-3.5 w-3.5 text-orange-500" />
+            </div>
+            <p className="text-xl font-bold text-orange-400">{fmt(totalUnpaid)}</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-zinc-950 border-zinc-800">
+          <CardContent className="pt-4 pb-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-zinc-500">To'langan</span>
+              <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+            </div>
+            <p className="text-xl font-bold text-green-400">{paidCount} ta</p>
+          </CardContent>
+        </Card>
       </div>
 
+      {/* Filters + Search */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex gap-1.5">
+          {filterBtns.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setFilter(f.key)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                filter === f.key
+                  ? "bg-blue-600 text-white"
+                  : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+              }`}
+            >
+              {f.label}
+              <span className={`ml-1 ${filter === f.key ? "text-blue-200" : f.color}`}>({f.count})</span>
+            </button>
+          ))}
+        </div>
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Mijoz nomi bo'yicha qidirish..."
+            className="pl-9 bg-zinc-800 border-zinc-700 text-white h-9 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* List */}
       {isLoading ? (
-        <div className="text-zinc-400">Yuklanmoqda...</div>
+        <div className="text-zinc-500 text-center py-10">Yuklanmoqda...</div>
       ) : !filtered.length ? (
         <Card className="bg-zinc-950 border-zinc-800">
-          <CardContent className="py-16 text-center">
-            <Receipt className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-            <p className="text-zinc-400">Qarz yo'q</p>
+          <CardContent className="py-14 text-center">
+            <Receipt className="h-10 w-10 text-zinc-700 mx-auto mb-3" />
+            <p className="text-zinc-400">{filter === "unpaid" ? "Qarzdor mijozlar yo'q" : "Yozuv topilmadi"}</p>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-2">
-          {filtered.map((d) => (
-            <Card key={d.id} className="bg-zinc-950 border-zinc-800">
-              <CardContent className="py-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-semibold text-white">{d.customerName}</p>
-                      {statusBadge(d.status)}
-                    </div>
-                    {d.customerPhone && (
-                      <p className="text-sm text-zinc-400 flex items-center gap-1 mt-1">
-                        <Phone className="h-3 w-3" /> {d.customerPhone}
+          {filtered.map((d) => {
+            const remaining = d.remaining ?? d.amount;
+            const pct = d.amount > 0 ? ((d.paidAmount ?? 0) / d.amount) * 100 : 0;
+            return (
+              <Card key={d.id} className={`border transition-colors ${d.status === "paid" ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-950 border-zinc-800 hover:border-zinc-700"}`}>
+                <CardContent className="py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <p className="font-semibold text-white">{d.customerName}</p>
+                        {statusBadge(d.status)}
+                      </div>
+                      {d.customerPhone && (
+                        <p className="text-sm text-zinc-400 flex items-center gap-1">
+                          <Phone className="h-3 w-3" /> {d.customerPhone}
+                        </p>
+                      )}
+                      <p className="text-xs text-zinc-600 mt-1 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        Buyurtma #{d.orderId} · {fmtDate(d.createdAt)}
                       </p>
-                    )}
-                    <p className="text-xs text-zinc-500 mt-1">
-                      Buyurtma #{d.orderId} · {new Date(d.createdAt).toLocaleDateString("uz-UZ")}
-                    </p>
+
+                      {/* Progress bar for partial payments */}
+                      {d.status === "partial" && d.amount > 0 && (
+                        <div className="mt-2">
+                          <div className="flex justify-between text-xs text-zinc-500 mb-1">
+                            <span>To'landi: {fmt(d.paidAmount ?? 0)}</span>
+                            <span>{Math.round(pct)}%</span>
+                          </div>
+                          <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-yellow-500 rounded-full transition-all"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <p className="text-xs text-zinc-500">Jami:</p>
+                      <p className="text-sm text-zinc-300 font-medium">{fmt(d.amount)}</p>
+                      {d.status !== "paid" && (
+                        <>
+                          <p className="text-xs text-zinc-500 mt-1">Qoldi:</p>
+                          <p className="text-lg font-bold text-red-400">{fmt(remaining)}</p>
+                        </>
+                      )}
+                      {d.status === "paid" && (
+                        <p className="text-sm text-green-400 mt-1">✓ To'liq to'landi</p>
+                      )}
+                      {d.status !== "paid" && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setPayingDebt(d);
+                            setPayAmount(String(Math.round(remaining)));
+                          }}
+                          className="mt-2 bg-green-600 hover:bg-green-700 text-white text-xs h-8"
+                        >
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          To'lash
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-zinc-400">Jami: {fmt(d.amount)}</p>
-                    {d.paidAmount! > 0 && <p className="text-sm text-green-400">To'landi: {fmt(d.paidAmount!)}</p>}
-                    <p className="text-lg font-bold text-red-400">{fmt(d.remaining ?? d.amount)}</p>
-                    {d.status !== "paid" && (
-                      <Button
-                        size="sm"
-                        onClick={() => { setPayingDebt(d); setPayAmount(String(d.remaining ?? d.amount)); }}
-                        className="mt-2 bg-green-600 hover:bg-green-700 text-white"
-                      >
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        To'lash
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
-      <Dialog open={!!payingDebt} onOpenChange={() => setPayingDebt(null)}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+      {/* Pay Dialog */}
+      <Dialog open={!!payingDebt} onOpenChange={() => { setPayingDebt(null); setPayAmount(""); }}>
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-sm">
           <DialogHeader>
-            <DialogTitle>Qarz To'lash — {payingDebt?.customerName}</DialogTitle>
+            <DialogTitle>Qarz To'lash</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-3 bg-zinc-800 rounded-lg text-sm space-y-1">
+            <div className="p-3 bg-zinc-800 rounded-lg space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-zinc-400">Mijoz:</span>
+                <span className="text-white font-medium">{payingDebt?.customerName}</span>
+              </div>
+              {payingDebt?.customerPhone && (
+                <div className="flex justify-between">
+                  <span className="text-zinc-400">Telefon:</span>
+                  <span className="text-zinc-300">{payingDebt.customerPhone}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-zinc-400">Jami qarz:</span>
-                <span className="text-red-400 font-semibold">{fmt(payingDebt?.remaining ?? 0)}</span>
+                <span className="text-white">{fmt(payingDebt?.amount ?? 0)}</span>
+              </div>
+              {(payingDebt?.paidAmount ?? 0) > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-zinc-400">To'langan:</span>
+                  <span className="text-green-400">{fmt(payingDebt?.paidAmount ?? 0)}</span>
+                </div>
+              )}
+              <div className="flex justify-between border-t border-zinc-700 pt-2">
+                <span className="text-zinc-300 font-medium">Qoldiq qarz:</span>
+                <span className="text-red-400 font-bold">{fmt(payingDebt?.remaining ?? 0)}</span>
               </div>
             </div>
+
             <div>
-              <Label>To'lov miqdori (so'm)</Label>
+              <Label className="text-zinc-300">To'lov miqdori (so'm)</Label>
               <Input
                 type="number"
                 value={payAmount}
                 onChange={(e) => setPayAmount(e.target.value)}
-                className="bg-zinc-800 border-zinc-700 mt-1"
+                max={payingDebt?.remaining ?? payingDebt?.amount}
+                placeholder="Miqdorni kiriting"
+                className="bg-zinc-800 border-zinc-700 mt-1.5 text-white"
               />
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={() => setPayAmount(String(Math.round(payingDebt?.remaining ?? 0)))}
+                  className="text-xs text-blue-400 hover:text-blue-300 underline"
+                >
+                  To'liq to'lash
+                </button>
+                <span className="text-zinc-700">·</span>
+                <button
+                  onClick={() => setPayAmount(String(Math.round((payingDebt?.remaining ?? 0) / 2)))}
+                  className="text-xs text-zinc-400 hover:text-zinc-300 underline"
+                >
+                  Yarmini to'lash
+                </button>
+              </div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setPayingDebt(null)}>Bekor</Button>
+            <Button variant="ghost" onClick={() => { setPayingDebt(null); setPayAmount(""); }} className="text-zinc-400">
+              Bekor
+            </Button>
             <Button
               onClick={handlePay}
               disabled={!payAmount || Number(payAmount) <= 0 || payDebt.isPending}
               className="bg-green-600 hover:bg-green-700"
             >
-              {payDebt.isPending ? "Saqlanmoqda..." : "To'lovni Qabul Qilish"}
+              {payDebt.isPending ? "Saqlanmoqda..." : "✓ To'lovni Qabul Qilish"}
             </Button>
           </DialogFooter>
         </DialogContent>

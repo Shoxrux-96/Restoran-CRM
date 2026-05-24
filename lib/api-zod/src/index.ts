@@ -1,2 +1,15 @@
 export * from "./generated/api";
-export * from "./generated/types";
+export type {
+  DebtStatus,
+  OrderDetailPaymentType,
+  OrderDetailStatus,
+  OrderInputPaymentType,
+  OrderPaymentType,
+  OrderStatus,
+  SalesReportMonthlySalesItem,
+  UserInputRole,
+  UserRole,
+  VenueInputType,
+  VenueType,
+  VenueUpdateType
+} from "./generated/types";

@@ -277,6 +277,92 @@ router.get("/venues/:venueId/summary", requireAuth, async (req, res): Promise<vo
   });
 });
 
+router.get("/venues/:venueId/report", requireAuth, async (req, res): Promise<void> => {
+  const venueId = parseId(req.params.venueId);
+  const year = req.query.year ? parseInt(req.query.year as string) : new Date().getFullYear();
+
+  const MONTH_NAMES = ["Yanvar","Fevral","Mart","Aprel","May","Iyun","Iyul","Avgust","Sentabr","Oktabr","Noyabr","Dekabr"];
+
+  const monthlyRaw = await db
+    .select({
+      month: sql<number>`EXTRACT(MONTH FROM ${ordersTable.createdAt})::int`,
+      revenue: sql<string>`COALESCE(SUM(${ordersTable.totalAmount}),0)`,
+      orderCount: sql<number>`COUNT(*)::int`,
+    })
+    .from(ordersTable)
+    .where(and(
+      eq(ordersTable.venueId, venueId),
+      sql`EXTRACT(YEAR FROM ${ordersTable.createdAt}) = ${year}`
+    ))
+    .groupBy(sql`EXTRACT(MONTH FROM ${ordersTable.createdAt})`)
+    .orderBy(sql`EXTRACT(MONTH FROM ${ordersTable.createdAt})`);
+
+  const monthlySales = Array.from({ length: 12 }, (_, i) => {
+    const m = monthlyRaw.find((r) => r.month === i + 1);
+    return {
+      month: i + 1,
+      monthName: MONTH_NAMES[i],
+      revenue: parseFloat(m?.revenue ?? "0"),
+      orderCount: Number(m?.orderCount ?? 0),
+    };
+  });
+
+  const allOrdersRaw = await db
+    .select()
+    .from(ordersTable)
+    .where(and(
+      eq(ordersTable.venueId, venueId),
+      sql`EXTRACT(YEAR FROM ${ordersTable.createdAt}) = ${year}`
+    ))
+    .orderBy(sql`${ordersTable.createdAt} DESC`);
+
+  const orderIds = allOrdersRaw.map((o) => o.id);
+  let itemsMap = new Map<number, typeof import("@workspace/db").orderItemsTable.$inferSelect[]>();
+  if (orderIds.length > 0) {
+    const { inArray } = await import("drizzle-orm");
+    const allItems = await db.select().from(orderItemsTable).where(inArray(orderItemsTable.orderId, orderIds));
+    for (const item of allItems) {
+      if (!itemsMap.has(item.orderId)) itemsMap.set(item.orderId, []);
+      itemsMap.get(item.orderId)!.push(item);
+    }
+  }
+
+  const customers = await db.select().from(customersTable).where(eq(customersTable.venueId, venueId));
+  const customerMap = new Map(customers.map((c) => [c.id, c.name]));
+
+  const totalRevenue = monthlySales.reduce((s, m) => s + m.revenue, 0);
+  const totalOrders = monthlySales.reduce((s, m) => s + m.orderCount, 0);
+
+  res.json({
+    year,
+    totalRevenue,
+    totalOrders,
+    monthlySales,
+    allOrders: allOrdersRaw.map((o) => ({
+      id: o.id,
+      venueId: o.venueId,
+      customerId: o.customerId,
+      customerName: o.customerId ? (customerMap.get(o.customerId) ?? null) : null,
+      roomId: o.roomId,
+      tableId: o.tableId,
+      tableNumber: o.tableNumber,
+      roomName: o.roomName,
+      totalAmount: parseFloat(o.totalAmount),
+      paymentType: o.paymentType,
+      status: o.status,
+      notes: o.notes,
+      items: (itemsMap.get(o.id) ?? []).map((i) => ({
+        productId: i.productId,
+        productName: i.productName,
+        quantity: i.quantity,
+        unitPrice: parseFloat(i.unitPrice),
+        total: parseFloat(i.total),
+      })),
+      createdAt: o.createdAt.toISOString(),
+    })),
+  });
+});
+
 router.get("/owner/summary", requireAuth, async (req, res): Promise<void> => {
   const me = (req as typeof req & { user: typeof usersTable.$inferSelect }).user;
   if (me.role !== "owner") {

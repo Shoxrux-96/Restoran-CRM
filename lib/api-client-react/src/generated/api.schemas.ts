@@ -353,6 +353,21 @@ export interface DebtPayInput {
   amount: number;
 }
 
+export type SalesReportMonthlySalesItem = {
+  month: number;
+  monthName?: string;
+  revenue: number;
+  orderCount: number;
+};
+
+export interface SalesReport {
+  year: number;
+  totalRevenue: number;
+  totalOrders: number;
+  monthlySales: SalesReportMonthlySalesItem[];
+  allOrders: OrderDetail[];
+}
+
 export interface TopProduct {
   productId: number;
   productName: string;
@@ -383,4 +398,8 @@ export interface OwnerSummary {
   totalDebt: number;
   venueStats: VenueStat[];
 }
+
+export type GetVenueReportParams = {
+year?: number;
+};
 

@@ -8,10 +8,10 @@ import {
   Users, 
   MonitorSmartphone, 
   Package, 
-  UsersRound, 
   Receipt,
   LogOut,
   DoorOpen,
+  BarChart3,
 } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -38,8 +38,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/admin/pos", label: "POS Terminal", icon: MonitorSmartphone },
     { href: "/admin/products", label: "Mahsulotlar", icon: Package },
     { href: "/admin/rooms", label: "Xonalar & Stollar", icon: DoorOpen },
-    { href: "/admin/customers", label: "Mijozlar", icon: UsersRound },
     { href: "/admin/debts", label: "Qarz Daftar", icon: Receipt },
+    { href: "/admin/report", label: "Sotuvlar Hisobot", icon: BarChart3 },
   ];
 
   const links = user?.role === "owner" ? ownerLinks : adminLinks;

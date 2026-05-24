@@ -515,6 +515,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/DashboardSummary"
 
+  /venues/{venueId}/report:
+    get:
+      operationId: getVenueReport
+      tags: [venues]
+      summary: Sotuvlar hisoboti (oylik/yillik)
+      parameters:
+        - name: venueId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Hisobot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SalesReport"
+
   /owner/summary:
     get:
       operationId: getOwnerSummary
@@ -1181,6 +1205,35 @@ components:
       properties:
         amount:
           type: number
+
+    SalesReport:
+      type: object
+      required: [year, monthlySales, allOrders, totalRevenue, totalOrders]
+      properties:
+        year:
+          type: integer
+        totalRevenue:
+          type: number
+        totalOrders:
+          type: integer
+        monthlySales:
+          type: array
+          items:
+            type: object
+            required: [month, revenue, orderCount]
+            properties:
+              month:
+                type: integer
+              monthName:
+                type: string
+              revenue:
+                type: number
+              orderCount:
+                type: integer
+        allOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderDetail"
 
     DashboardSummary:
       type: object

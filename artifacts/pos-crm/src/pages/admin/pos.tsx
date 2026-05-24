@@ -34,8 +34,24 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-type Unit = "dona" | "kg" | "litr" | "porsiya" | "qadoq";
-const UNITS: Unit[] = ["dona", "kg", "litr", "porsiya", "qadoq"];
+type Unit = string;
+const UNITS: { value: string; label: string }[] = [
+  { value: "dona", label: "dona (штука)" },
+  { value: "porsiya", label: "porsiya (порция)" },
+  { value: "stakan", label: "stakan (стакан)" },
+  { value: "shisha", label: "shisha (бутылка)" },
+  { value: "quti", label: "quti (коробка/банка)" },
+  { value: "kg", label: "kg (кг)" },
+  { value: "gram", label: "gram (грамм)" },
+  { value: "litr", label: "litr (литр)" },
+  { value: "ml", label: "ml (мл)" },
+  { value: "kosa", label: "kosa (миска)" },
+  { value: "tarelka", label: "tarelka (тарелка)" },
+  { value: "piyola", label: "piyola (пиала)" },
+  { value: "qadoq", label: "qadoq (пачка)" },
+  { value: "lagan", label: "lagan (ляган)" },
+  { value: "sm", label: "sm (см)" },
+];
 
 type PayType = "naxt" | "karta" | "qarz";
 
@@ -757,7 +773,7 @@ export default function AdminPos() {
                           className="bg-zinc-800 border-none text-zinc-300 text-sm rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-600"
                         >
                           {UNITS.map((u) => (
-                            <option key={u} value={u}>{u}</option>
+                            <option key={u.value} value={u.value}>{u.label}</option>
                           ))}
                         </select>
 

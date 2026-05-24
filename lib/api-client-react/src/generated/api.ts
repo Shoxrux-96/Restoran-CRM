@@ -27,6 +27,7 @@ import type {
   DashboardSummary,
   Debt,
   DebtPayInput,
+  GetVenueReportParams,
   HealthStatus,
   LoginInput,
   Order,
@@ -39,6 +40,7 @@ import type {
   Room,
   RoomInput,
   RoomUpdate,
+  SalesReport,
   Table,
   TableInput,
   TableUpdate,
@@ -1846,6 +1848,95 @@ export function useGetVenueSummary<TData = Awaited<ReturnType<typeof getVenueSum
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetVenueSummaryQueryOptions(venueId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetVenueReportUrl = (venueId: number,
+    params?: GetVenueReportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/venues/${venueId}/report?${stringifiedParams}` : `/api/venues/${venueId}/report`
+}
+
+/**
+ * @summary Sotuvlar hisoboti (oylik/yillik)
+ */
+export const getVenueReport = async (venueId: number,
+    params?: GetVenueReportParams, options?: RequestInit): Promise<SalesReport> => {
+
+  return customFetch<SalesReport>(getGetVenueReportUrl(venueId,params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetVenueReportQueryKey = (venueId: number,
+    params?: GetVenueReportParams,) => {
+    return [
+    `/api/venues/${venueId}/report`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetVenueReportQueryOptions = <TData = Awaited<ReturnType<typeof getVenueReport>>, TError = ErrorType<unknown>>(venueId: number,
+    params?: GetVenueReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVenueReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetVenueReportQueryKey(venueId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getVenueReport>>> = ({ signal }) => getVenueReport(venueId,params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(venueId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getVenueReport>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetVenueReportQueryResult = NonNullable<Awaited<ReturnType<typeof getVenueReport>>>
+export type GetVenueReportQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Sotuvlar hisoboti (oylik/yillik)
+ */
+
+export function useGetVenueReport<TData = Awaited<ReturnType<typeof getVenueReport>>, TError = ErrorType<unknown>>(
+ venueId: number,
+    params?: GetVenueReportParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getVenueReport>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetVenueReportQueryOptions(venueId,params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

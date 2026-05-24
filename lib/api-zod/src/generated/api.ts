@@ -448,6 +448,48 @@ export const GetVenueSummaryResponse = zod.object({
 
 
 /**
+ * @summary Sotuvlar hisoboti (oylik/yillik)
+ */
+export const GetVenueReportParams = zod.object({
+  "venueId": zod.coerce.number()
+})
+
+export const GetVenueReportQueryParams = zod.object({
+  "year": zod.coerce.number().optional()
+})
+
+export const GetVenueReportResponse = zod.object({
+  "year": zod.number(),
+  "totalRevenue": zod.number(),
+  "totalOrders": zod.number(),
+  "monthlySales": zod.array(zod.object({
+  "month": zod.number(),
+  "monthName": zod.string().optional(),
+  "revenue": zod.number(),
+  "orderCount": zod.number()
+})),
+  "allOrders": zod.array(zod.object({
+  "id": zod.number(),
+  "venueId": zod.number(),
+  "customerId": zod.number().nullish(),
+  "customerName": zod.string().nullish(),
+  "totalAmount": zod.number(),
+  "paymentType": zod.enum(['cash', 'debt']),
+  "status": zod.enum(['completed', 'debt']),
+  "notes": zod.string().nullish(),
+  "items": zod.array(zod.object({
+  "productId": zod.number(),
+  "productName": zod.string(),
+  "quantity": zod.number(),
+  "unitPrice": zod.number(),
+  "total": zod.number()
+})),
+  "createdAt": zod.string()
+}))
+})
+
+
+/**
  * @summary Owner dashboard uchun umumiy statistika
  */
 export const GetOwnerSummaryResponse = zod.object({
