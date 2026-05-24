@@ -4,9 +4,13 @@ import {
   useListCustomers,
   useCreateCustomer,
   useCreateOrder,
+  useListRooms,
   getListCustomersQueryKey,
   getListProductsQueryKey,
+  getListRoomsQueryKey,
   type Product,
+  type Room,
+  type Table,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
@@ -25,6 +29,8 @@ import {
   Percent,
   ShoppingBag,
   UserPlus,
+  DoorOpen,
+  Table2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -50,7 +56,16 @@ type ReceiptData = {
   payType: PayType;
   customerName?: string;
   cashierName?: string;
+  tableNumber?: number;
+  roomName?: string;
   date: Date;
+};
+
+type TableSelection = {
+  roomId: number | null;
+  roomName: string | null;
+  tableId: number | null;
+  tableNumber: number | null;
 };
 
 function itemTotal(item: CartItem) {
@@ -131,6 +146,12 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
             )}
             {data.customerName && (
               <div>Mijoz: {data.customerName}</div>
+            )}
+            {(data.roomName || data.tableNumber) && (
+              <div>
+                {data.roomName ? `${data.roomName} · ` : ""}
+                {data.tableNumber ? `Stol #${data.tableNumber}` : ""}
+              </div>
             )}
             <div className="divider" style={{ borderTop: "1px dashed #000", margin: "4px 0" }} />
 
@@ -438,6 +459,7 @@ export default function AdminPos() {
   const venueId = user?.venueId ?? 0;
   const { data: products } = useListProducts(venueId, { query: { enabled: !!venueId, queryKey: getListProductsQueryKey(venueId) } });
   const { data: customers } = useListCustomers(venueId, { query: { enabled: !!venueId, queryKey: getListCustomersQueryKey(venueId) } });
+  const { data: rooms } = useListRooms(venueId, { query: { enabled: !!venueId, queryKey: getListRoomsQueryKey(venueId) } });
   const createOrder = useCreateOrder();
   const qc = useQueryClient();
   const { toast } = useToast();
@@ -448,6 +470,10 @@ export default function AdminPos() {
   const [showDebtPanel, setShowDebtPanel] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showTablePanel, setShowTablePanel] = useState(false);
+  const [tableSelection, setTableSelection] = useState<TableSelection>({
+    roomId: null, roomName: null, tableId: null, tableNumber: null,
+  });
   const searchRef = useRef<HTMLInputElement>(null);
 
   const availableProducts = (products ?? []).filter((p) => p.isAvailable);
@@ -490,6 +516,7 @@ export default function AdminPos() {
   const clearCart = () => {
     setCart([]);
     setPayType("naxt");
+    setTableSelection({ roomId: null, roomName: null, tableId: null, tableNumber: null });
     qc.invalidateQueries();
   };
 
@@ -504,6 +531,10 @@ export default function AdminPos() {
         venueId,
         data: {
           customerId: opts.customerId ?? null,
+          roomId: tableSelection.roomId ?? null,
+          tableId: tableSelection.tableId ?? null,
+          tableNumber: tableSelection.tableNumber ?? null,
+          roomName: tableSelection.roomName ?? null,
           items: cart.map((i) => ({
             productId: i.product.id,
             quantity: i.quantity,
@@ -524,6 +555,8 @@ export default function AdminPos() {
             payType,
             customerName: opts.customerName,
             cashierName: user?.name ?? user?.username,
+            tableNumber: tableSelection.tableNumber ?? undefined,
+            roomName: tableSelection.roomName ?? undefined,
             date: new Date(),
           });
           clearCart();
@@ -565,6 +598,38 @@ export default function AdminPos() {
       <div className="bg-zinc-950 border-b border-zinc-800 px-4 py-3 flex items-center gap-3">
         <ShoppingBag className="h-5 w-5 text-blue-500 shrink-0" />
         <h1 className="text-white font-bold text-lg">Sotuv Kassa</h1>
+
+        {/* Table selection badge */}
+        <button
+          onClick={() => setShowTablePanel(true)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ml-2 ${
+            tableSelection.tableNumber
+              ? "bg-blue-600/20 text-blue-400 border border-blue-600/40 hover:bg-blue-600/30"
+              : "bg-zinc-800 text-zinc-500 border border-zinc-700 hover:bg-zinc-700 hover:text-zinc-300"
+          }`}
+        >
+          <Table2 className="h-3.5 w-3.5" />
+          {tableSelection.tableNumber ? (
+            <span>
+              {tableSelection.roomName ? `${tableSelection.roomName} · ` : ""}
+              Stol #{tableSelection.tableNumber}
+            </span>
+          ) : (
+            <span>Stol tanlash</span>
+          )}
+          {tableSelection.tableNumber && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setTableSelection({ roomId: null, roomName: null, tableId: null, tableNumber: null });
+              }}
+              className="ml-1 text-zinc-400 hover:text-white"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </button>
+
         <span className="text-zinc-500 text-sm ml-auto">{user?.venueName}</span>
       </div>
 
@@ -831,6 +896,175 @@ export default function AdminPos() {
           onClose={() => setReceipt(null)}
         />
       )}
+
+      {/* Table selection panel */}
+      {showTablePanel && (
+        <TableSelectionPanel
+          rooms={rooms ?? []}
+          current={tableSelection}
+          onSelect={(sel) => {
+            setTableSelection(sel);
+            setShowTablePanel(false);
+          }}
+          onCancel={() => setShowTablePanel(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ── Table Selection Panel ────────────────────────────────── */
+function TableSelectionPanel({
+  rooms,
+  current,
+  onSelect,
+  onCancel,
+}: {
+  rooms: Room[];
+  current: TableSelection;
+  onSelect: (sel: TableSelection) => void;
+  onCancel: () => void;
+}) {
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(current.roomId);
+
+  const allTables = rooms.flatMap((r) => (r.tables ?? []).map((t) => ({ ...t, _roomName: r.name })));
+  const activeRooms = rooms.filter((r) => r.isActive);
+
+  const filteredTables = selectedRoomId
+    ? allTables.filter((t) => t.roomId === selectedRoomId && t.isActive)
+    : allTables.filter((t) => t.isActive);
+
+  const hasRooms = activeRooms.length > 0;
+
+  return (
+    <div className="fixed inset-0 z-40 flex flex-col justify-end" onClick={onCancel}>
+      <div
+        className="bg-zinc-900 border-t border-zinc-700 rounded-t-2xl shadow-2xl max-w-2xl mx-auto w-full max-h-[80vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+        style={{ animation: "slideUp 0.25s ease-out" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
+          <div className="flex items-center gap-2">
+            <Table2 className="h-5 w-5 text-blue-400" />
+            <h3 className="text-lg font-bold text-white">Xona va Stol tanlash</h3>
+          </div>
+          <button onClick={onCancel} className="text-zinc-500 hover:text-white">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="flex flex-1 overflow-hidden">
+          {/* Room sidebar */}
+          {hasRooms && (
+            <div className="w-48 border-r border-zinc-800 overflow-y-auto py-2 shrink-0">
+              <button
+                onClick={() => setSelectedRoomId(null)}
+                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${
+                  selectedRoomId === null
+                    ? "bg-blue-600/10 text-blue-400 font-medium"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                }`}
+              >
+                <Table2 className="h-4 w-4 shrink-0" />
+                Barcha stollar
+              </button>
+              {activeRooms.map((r) => (
+                <button
+                  key={r.id}
+                  onClick={() => setSelectedRoomId(r.id)}
+                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${
+                    selectedRoomId === r.id
+                      ? "bg-blue-600/10 text-blue-400 font-medium"
+                      : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                  }`}
+                >
+                  <DoorOpen className="h-4 w-4 shrink-0" />
+                  {r.name}
+                  <span className="ml-auto text-xs text-zinc-600">
+                    {(r.tables ?? []).filter((t) => t.isActive).length}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Tables grid */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {filteredTables.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-32 text-zinc-600">
+                <Table2 className="h-8 w-8 mb-2 opacity-30" />
+                <p className="text-sm">Stol topilmadi</p>
+              </div>
+            ) : (
+              <>
+                {!hasRooms && (
+                  <p className="text-xs text-zinc-500 mb-3">Stolni tanlang</p>
+                )}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                  {filteredTables
+                    .sort((a, b) => a.number - b.number)
+                    .map((table) => {
+                      const isSelected = current.tableId === table.id;
+                      const roomName = rooms.find((r) => r.id === table.roomId)?.name ?? null;
+                      return (
+                        <button
+                          key={table.id}
+                          onClick={() =>
+                            onSelect({
+                              roomId: table.roomId ?? null,
+                              roomName,
+                              tableId: table.id,
+                              tableNumber: table.number,
+                            })
+                          }
+                          className={`flex flex-col items-center justify-center h-20 rounded-xl border-2 transition-all ${
+                            isSelected
+                              ? "border-blue-500 bg-blue-600/20 text-blue-400"
+                              : "border-zinc-700 bg-zinc-800 text-white hover:border-blue-600/50 hover:bg-zinc-700"
+                          }`}
+                        >
+                          <span className="text-xl font-bold">#{table.number}</span>
+                          {table.name && (
+                            <span className="text-xs text-zinc-400 truncate px-1 max-w-full">
+                              {table.name}
+                            </span>
+                          )}
+                          {!selectedRoomId && roomName && (
+                            <span className="text-xs text-zinc-500 truncate px-1 max-w-full">
+                              {roomName}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Footer — clear selection */}
+        {current.tableNumber && (
+          <div className="px-5 py-3 border-t border-zinc-800">
+            <button
+              onClick={() =>
+                onSelect({ roomId: null, roomName: null, tableId: null, tableNumber: null })
+              }
+              className="w-full py-2 text-sm text-zinc-500 hover:text-red-400 transition-colors"
+            >
+              Stol tanlovini bekor qilish
+            </button>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }

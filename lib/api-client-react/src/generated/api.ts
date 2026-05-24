@@ -36,6 +36,12 @@ import type {
   Product,
   ProductInput,
   ProductUpdate,
+  Room,
+  RoomInput,
+  RoomUpdate,
+  Table,
+  TableInput,
+  TableUpdate,
   User,
   UserInput,
   Venue,
@@ -1928,6 +1934,596 @@ export function useGetOwnerSummary<TData = Awaited<ReturnType<typeof getOwnerSum
 
 
 
+
+export const getListRoomsUrl = (venueId: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/rooms`
+}
+
+/**
+ * @summary Xonalar ro'yxati (stollar bilan)
+ */
+export const listRooms = async (venueId: number, options?: RequestInit): Promise<Room[]> => {
+
+  return customFetch<Room[]>(getListRoomsUrl(venueId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListRoomsQueryKey = (venueId: number,) => {
+    return [
+    `/api/venues/${venueId}/rooms`
+    ] as const;
+    }
+
+
+export const getListRoomsQueryOptions = <TData = Awaited<ReturnType<typeof listRooms>>, TError = ErrorType<unknown>>(venueId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRooms>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListRoomsQueryKey(venueId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listRooms>>> = ({ signal }) => listRooms(venueId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(venueId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listRooms>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListRoomsQueryResult = NonNullable<Awaited<ReturnType<typeof listRooms>>>
+export type ListRoomsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Xonalar ro'yxati (stollar bilan)
+ */
+
+export function useListRooms<TData = Awaited<ReturnType<typeof listRooms>>, TError = ErrorType<unknown>>(
+ venueId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listRooms>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListRoomsQueryOptions(venueId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateRoomUrl = (venueId: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/rooms`
+}
+
+/**
+ * @summary Yangi xona yaratish
+ */
+export const createRoom = async (venueId: number,
+    roomInput: RoomInput, options?: RequestInit): Promise<Room> => {
+
+  return customFetch<Room>(getCreateRoomUrl(venueId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      roomInput,)
+  }
+);}
+
+
+
+
+export const getCreateRoomMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRoom>>, TError,{venueId: number;data: BodyType<RoomInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createRoom>>, TError,{venueId: number;data: BodyType<RoomInput>}, TContext> => {
+
+const mutationKey = ['createRoom'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createRoom>>, {venueId: number;data: BodyType<RoomInput>}> = (props) => {
+          const {venueId,data} = props ?? {};
+
+          return  createRoom(venueId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateRoomMutationResult = NonNullable<Awaited<ReturnType<typeof createRoom>>>
+    export type CreateRoomMutationBody = BodyType<RoomInput>
+    export type CreateRoomMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Yangi xona yaratish
+ */
+export const useCreateRoom = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createRoom>>, TError,{venueId: number;data: BodyType<RoomInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createRoom>>,
+        TError,
+        {venueId: number;data: BodyType<RoomInput>},
+        TContext
+      > => {
+      return useMutation(getCreateRoomMutationOptions(options));
+    }
+
+export const getUpdateRoomUrl = (venueId: number,
+    id: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/rooms/${id}`
+}
+
+/**
+ * @summary Xonani tahrirlash
+ */
+export const updateRoom = async (venueId: number,
+    id: number,
+    roomUpdate: RoomUpdate, options?: RequestInit): Promise<Room> => {
+
+  return customFetch<Room>(getUpdateRoomUrl(venueId,id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      roomUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateRoomMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRoom>>, TError,{venueId: number;id: number;data: BodyType<RoomUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateRoom>>, TError,{venueId: number;id: number;data: BodyType<RoomUpdate>}, TContext> => {
+
+const mutationKey = ['updateRoom'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateRoom>>, {venueId: number;id: number;data: BodyType<RoomUpdate>}> = (props) => {
+          const {venueId,id,data} = props ?? {};
+
+          return  updateRoom(venueId,id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateRoomMutationResult = NonNullable<Awaited<ReturnType<typeof updateRoom>>>
+    export type UpdateRoomMutationBody = BodyType<RoomUpdate>
+    export type UpdateRoomMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Xonani tahrirlash
+ */
+export const useUpdateRoom = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateRoom>>, TError,{venueId: number;id: number;data: BodyType<RoomUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateRoom>>,
+        TError,
+        {venueId: number;id: number;data: BodyType<RoomUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateRoomMutationOptions(options));
+    }
+
+export const getDeleteRoomUrl = (venueId: number,
+    id: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/rooms/${id}`
+}
+
+/**
+ * @summary Xonani o'chirish
+ */
+export const deleteRoom = async (venueId: number,
+    id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteRoomUrl(venueId,id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteRoomMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRoom>>, TError,{venueId: number;id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteRoom>>, TError,{venueId: number;id: number}, TContext> => {
+
+const mutationKey = ['deleteRoom'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteRoom>>, {venueId: number;id: number}> = (props) => {
+          const {venueId,id} = props ?? {};
+
+          return  deleteRoom(venueId,id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteRoomMutationResult = NonNullable<Awaited<ReturnType<typeof deleteRoom>>>
+
+    export type DeleteRoomMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Xonani o'chirish
+ */
+export const useDeleteRoom = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteRoom>>, TError,{venueId: number;id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteRoom>>,
+        TError,
+        {venueId: number;id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteRoomMutationOptions(options));
+    }
+
+export const getListTablesUrl = (venueId: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/tables`
+}
+
+/**
+ * @summary Barcha stollar ro'yxati
+ */
+export const listTables = async (venueId: number, options?: RequestInit): Promise<Table[]> => {
+
+  return customFetch<Table[]>(getListTablesUrl(venueId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListTablesQueryKey = (venueId: number,) => {
+    return [
+    `/api/venues/${venueId}/tables`
+    ] as const;
+    }
+
+
+export const getListTablesQueryOptions = <TData = Awaited<ReturnType<typeof listTables>>, TError = ErrorType<unknown>>(venueId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTables>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListTablesQueryKey(venueId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listTables>>> = ({ signal }) => listTables(venueId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(venueId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listTables>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListTablesQueryResult = NonNullable<Awaited<ReturnType<typeof listTables>>>
+export type ListTablesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Barcha stollar ro'yxati
+ */
+
+export function useListTables<TData = Awaited<ReturnType<typeof listTables>>, TError = ErrorType<unknown>>(
+ venueId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listTables>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListTablesQueryOptions(venueId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getCreateTableUrl = (venueId: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/tables`
+}
+
+/**
+ * @summary Yangi stol yaratish
+ */
+export const createTable = async (venueId: number,
+    tableInput: TableInput, options?: RequestInit): Promise<Table> => {
+
+  return customFetch<Table>(getCreateTableUrl(venueId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      tableInput,)
+  }
+);}
+
+
+
+
+export const getCreateTableMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTable>>, TError,{venueId: number;data: BodyType<TableInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createTable>>, TError,{venueId: number;data: BodyType<TableInput>}, TContext> => {
+
+const mutationKey = ['createTable'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createTable>>, {venueId: number;data: BodyType<TableInput>}> = (props) => {
+          const {venueId,data} = props ?? {};
+
+          return  createTable(venueId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateTableMutationResult = NonNullable<Awaited<ReturnType<typeof createTable>>>
+    export type CreateTableMutationBody = BodyType<TableInput>
+    export type CreateTableMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Yangi stol yaratish
+ */
+export const useCreateTable = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createTable>>, TError,{venueId: number;data: BodyType<TableInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createTable>>,
+        TError,
+        {venueId: number;data: BodyType<TableInput>},
+        TContext
+      > => {
+      return useMutation(getCreateTableMutationOptions(options));
+    }
+
+export const getUpdateTableUrl = (venueId: number,
+    id: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/tables/${id}`
+}
+
+/**
+ * @summary Stolni tahrirlash
+ */
+export const updateTable = async (venueId: number,
+    id: number,
+    tableUpdate: TableUpdate, options?: RequestInit): Promise<Table> => {
+
+  return customFetch<Table>(getUpdateTableUrl(venueId,id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      tableUpdate,)
+  }
+);}
+
+
+
+
+export const getUpdateTableMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTable>>, TError,{venueId: number;id: number;data: BodyType<TableUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateTable>>, TError,{venueId: number;id: number;data: BodyType<TableUpdate>}, TContext> => {
+
+const mutationKey = ['updateTable'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateTable>>, {venueId: number;id: number;data: BodyType<TableUpdate>}> = (props) => {
+          const {venueId,id,data} = props ?? {};
+
+          return  updateTable(venueId,id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateTableMutationResult = NonNullable<Awaited<ReturnType<typeof updateTable>>>
+    export type UpdateTableMutationBody = BodyType<TableUpdate>
+    export type UpdateTableMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Stolni tahrirlash
+ */
+export const useUpdateTable = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateTable>>, TError,{venueId: number;id: number;data: BodyType<TableUpdate>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateTable>>,
+        TError,
+        {venueId: number;id: number;data: BodyType<TableUpdate>},
+        TContext
+      > => {
+      return useMutation(getUpdateTableMutationOptions(options));
+    }
+
+export const getDeleteTableUrl = (venueId: number,
+    id: number,) => {
+
+
+
+
+  return `/api/venues/${venueId}/tables/${id}`
+}
+
+/**
+ * @summary Stolni o'chirish
+ */
+export const deleteTable = async (venueId: number,
+    id: number, options?: RequestInit): Promise<void> => {
+
+  return customFetch<void>(getDeleteTableUrl(venueId,id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getDeleteTableMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTable>>, TError,{venueId: number;id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteTable>>, TError,{venueId: number;id: number}, TContext> => {
+
+const mutationKey = ['deleteTable'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteTable>>, {venueId: number;id: number}> = (props) => {
+          const {venueId,id} = props ?? {};
+
+          return  deleteTable(venueId,id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteTableMutationResult = NonNullable<Awaited<ReturnType<typeof deleteTable>>>
+
+    export type DeleteTableMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Stolni o'chirish
+ */
+export const useDeleteTable = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteTable>>, TError,{venueId: number;id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteTable>>,
+        TError,
+        {venueId: number;id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteTableMutationOptions(options));
+    }
 
 export const getListUsersUrl = () => {
 

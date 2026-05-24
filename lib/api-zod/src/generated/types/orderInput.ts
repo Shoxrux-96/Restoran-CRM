@@ -11,6 +11,14 @@ import type { OrderItemInput } from './orderItemInput';
 export interface OrderInput {
   /** @nullable */
   customerId?: number | null;
+  /** @nullable */
+  roomId?: number | null;
+  /** @nullable */
+  tableId?: number | null;
+  /** @nullable */
+  tableNumber?: number | null;
+  /** @nullable */
+  roomName?: string | null;
   items: OrderItemInput[];
   paymentType: OrderInputPaymentType;
   notes?: string;

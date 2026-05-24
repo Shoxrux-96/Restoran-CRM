@@ -322,6 +322,10 @@ export const CreateOrderParams = zod.object({
 
 export const CreateOrderBody = zod.object({
   "customerId": zod.number().nullish(),
+  "roomId": zod.number().nullish(),
+  "tableId": zod.number().nullish(),
+  "tableNumber": zod.number().nullish(),
+  "roomName": zod.string().nullish(),
   "items": zod.array(zod.object({
   "productId": zod.number(),
   "quantity": zod.number()
@@ -457,6 +461,162 @@ export const GetOwnerSummaryResponse = zod.object({
   "totalDebt": zod.number(),
   "orderCount": zod.number().optional()
 }))
+})
+
+
+/**
+ * @summary Xonalar ro'yxati (stollar bilan)
+ */
+export const ListRoomsParams = zod.object({
+  "venueId": zod.coerce.number()
+})
+
+export const ListRoomsResponseItem = zod.object({
+  "id": zod.number(),
+  "venueId": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "tables": zod.array(zod.object({
+  "id": zod.number(),
+  "venueId": zod.number(),
+  "roomId": zod.number().nullish(),
+  "number": zod.number(),
+  "name": zod.string().nullish(),
+  "capacity": zod.number().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})).optional()
+})
+export const ListRoomsResponse = zod.array(ListRoomsResponseItem)
+
+
+/**
+ * @summary Yangi xona yaratish
+ */
+export const CreateRoomParams = zod.object({
+  "venueId": zod.coerce.number()
+})
+
+export const CreateRoomBody = zod.object({
+  "name": zod.string(),
+  "description": zod.string().optional()
+})
+
+
+/**
+ * @summary Xonani tahrirlash
+ */
+export const UpdateRoomParams = zod.object({
+  "venueId": zod.coerce.number(),
+  "id": zod.coerce.number()
+})
+
+export const UpdateRoomBody = zod.object({
+  "name": zod.string().optional(),
+  "description": zod.string().nullish(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateRoomResponse = zod.object({
+  "id": zod.number(),
+  "venueId": zod.number(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string(),
+  "tables": zod.array(zod.object({
+  "id": zod.number(),
+  "venueId": zod.number(),
+  "roomId": zod.number().nullish(),
+  "number": zod.number(),
+  "name": zod.string().nullish(),
+  "capacity": zod.number().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})).optional()
+})
+
+
+/**
+ * @summary Xonani o'chirish
+ */
+export const DeleteRoomParams = zod.object({
+  "venueId": zod.coerce.number(),
+  "id": zod.coerce.number()
+})
+
+
+/**
+ * @summary Barcha stollar ro'yxati
+ */
+export const ListTablesParams = zod.object({
+  "venueId": zod.coerce.number()
+})
+
+export const ListTablesResponseItem = zod.object({
+  "id": zod.number(),
+  "venueId": zod.number(),
+  "roomId": zod.number().nullish(),
+  "number": zod.number(),
+  "name": zod.string().nullish(),
+  "capacity": zod.number().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListTablesResponse = zod.array(ListTablesResponseItem)
+
+
+/**
+ * @summary Yangi stol yaratish
+ */
+export const CreateTableParams = zod.object({
+  "venueId": zod.coerce.number()
+})
+
+export const CreateTableBody = zod.object({
+  "roomId": zod.number().nullish(),
+  "number": zod.number(),
+  "name": zod.string().optional(),
+  "capacity": zod.number().optional()
+})
+
+
+/**
+ * @summary Stolni tahrirlash
+ */
+export const UpdateTableParams = zod.object({
+  "venueId": zod.coerce.number(),
+  "id": zod.coerce.number()
+})
+
+export const UpdateTableBody = zod.object({
+  "roomId": zod.number().nullish(),
+  "number": zod.number().optional(),
+  "name": zod.string().nullish(),
+  "capacity": zod.number().optional(),
+  "isActive": zod.boolean().optional()
+})
+
+export const UpdateTableResponse = zod.object({
+  "id": zod.number(),
+  "venueId": zod.number(),
+  "roomId": zod.number().nullish(),
+  "number": zod.number(),
+  "name": zod.string().nullish(),
+  "capacity": zod.number().nullish(),
+  "isActive": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Stolni o'chirish
+ */
+export const DeleteTableParams = zod.object({
+  "venueId": zod.coerce.number(),
+  "id": zod.coerce.number()
 })
 
 

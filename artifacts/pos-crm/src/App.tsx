@@ -17,6 +17,7 @@ import AdminPos from "@/pages/admin/pos";
 import AdminProducts from "@/pages/admin/products";
 import AdminCustomers from "@/pages/admin/customers";
 import AdminDebts from "@/pages/admin/debts";
+import AdminRooms from "@/pages/admin/rooms";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
@@ -58,6 +59,7 @@ function Router() {
       <Route path="/admin/dashboard" component={() => <ProtectedRoute component={AdminDashboard} role="admin" />} />
       <Route path="/admin/pos" component={() => <ProtectedRoute component={AdminPos} role="admin" />} />
       <Route path="/admin/products" component={() => <ProtectedRoute component={AdminProducts} role="admin" />} />
+      <Route path="/admin/rooms" component={() => <ProtectedRoute component={AdminRooms} role="admin" />} />
       <Route path="/admin/customers" component={() => <ProtectedRoute component={AdminCustomers} role="admin" />} />
       <Route path="/admin/debts" component={() => <ProtectedRoute component={AdminDebts} role="admin" />} />
 

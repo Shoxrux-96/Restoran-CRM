@@ -10,7 +10,8 @@ import {
   Package, 
   UsersRound, 
   Receipt,
-  LogOut
+  LogOut,
+  DoorOpen,
 } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -36,6 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/admin/dashboard", label: "Boshqaruv", icon: LayoutDashboard },
     { href: "/admin/pos", label: "POS Terminal", icon: MonitorSmartphone },
     { href: "/admin/products", label: "Mahsulotlar", icon: Package },
+    { href: "/admin/rooms", label: "Xonalar & Stollar", icon: DoorOpen },
     { href: "/admin/customers", label: "Mijozlar", icon: UsersRound },
     { href: "/admin/debts", label: "Qarz Daftar", icon: Receipt },
   ];

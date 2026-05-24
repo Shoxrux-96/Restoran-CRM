@@ -255,9 +255,72 @@ export const OrderInputPaymentType = {
 export interface OrderInput {
   /** @nullable */
   customerId?: number | null;
+  /** @nullable */
+  roomId?: number | null;
+  /** @nullable */
+  tableId?: number | null;
+  /** @nullable */
+  tableNumber?: number | null;
+  /** @nullable */
+  roomName?: string | null;
   items: OrderItemInput[];
   paymentType: OrderInputPaymentType;
   notes?: string;
+}
+
+export interface Table {
+  id: number;
+  venueId: number;
+  /** @nullable */
+  roomId?: number | null;
+  number: number;
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  capacity?: number | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface Room {
+  id: number;
+  venueId: number;
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  isActive: boolean;
+  createdAt: string;
+  tables?: Table[];
+}
+
+export interface RoomInput {
+  name: string;
+  description?: string;
+}
+
+export interface RoomUpdate {
+  name?: string;
+  /** @nullable */
+  description?: string | null;
+  isActive?: boolean;
+}
+
+export interface TableInput {
+  /** @nullable */
+  roomId?: number | null;
+  number: number;
+  name?: string;
+  capacity?: number;
+}
+
+export interface TableUpdate {
+  /** @nullable */
+  roomId?: number | null;
+  number?: number;
+  /** @nullable */
+  name?: string | null;
+  capacity?: number;
+  isActive?: boolean;
 }
 
 export type DebtStatus = typeof DebtStatus[keyof typeof DebtStatus];

@@ -41,11 +41,15 @@ router.get("/venues/:venueId/orders", requireAuth, async (req, res): Promise<voi
 
 router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<void> => {
   const venueId = parseId(req.params.venueId);
-  const { customerId, items, paymentType, notes } = req.body as {
+  const { customerId, items, paymentType, notes, roomId, tableId, tableNumber, roomName } = req.body as {
     customerId?: number | null;
     items?: Array<{ productId: number; quantity: number }>;
     paymentType?: string;
     notes?: string;
+    roomId?: number | null;
+    tableId?: number | null;
+    tableNumber?: number | null;
+    roomName?: string | null;
   };
 
   if (!items || items.length === 0 || !paymentType) {
@@ -95,6 +99,10 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
     .values({
       venueId,
       customerId: customerId ?? null,
+      roomId: roomId ?? null,
+      tableId: tableId ?? null,
+      tableNumber: tableNumber ?? null,
+      roomName: roomName ?? null,
       totalAmount: String(totalAmount),
       paymentType: paymentType as "cash" | "debt",
       status: status as "completed" | "debt",
@@ -130,6 +138,10 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
     venueId: order.venueId,
     customerId: order.customerId,
     customerName,
+    roomId: order.roomId,
+    tableId: order.tableId,
+    tableNumber: order.tableNumber,
+    roomName: order.roomName,
     totalAmount: parseFloat(order.totalAmount),
     paymentType: order.paymentType,
     status: order.status,
