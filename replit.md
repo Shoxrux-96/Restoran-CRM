@@ -1,15 +1,24 @@
-# [Project name]
+# RestoCRM
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Restoran va kafe uchun CRM va POS tizimi (O'zbek tilida).
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm --filter @workspace/api-server run dev` — API server ishga tushirish (8080 port)
+- `pnpm --filter @workspace/pos-crm run dev` — Frontend ishga tushirish
+- `pnpm run typecheck` — barcha paketlarni typecheck qilish
+- `pnpm run build` — typecheck + build
+- `pnpm --filter @workspace/api-spec run codegen` — OpenAPI spesifikatsiyasidan hooklar va Zod schemalarini qayta generatsiya qilish
+- `pnpm --filter @workspace/db run push` — DB schemani push qilish (dev only)
+- Kerakli env: `DATABASE_URL` — Postgres connection string
+
+## Demo Kredensiallar
+
+| Foydalanuvchi | Parol     | Rol   | Filial           |
+|---------------|-----------|-------|------------------|
+| owner         | admin123  | Egasi | —                |
+| cafe_admin    | admin123  | Admin | Choyxona Markaz  |
+| rest_admin    | admin123  | Admin | Royal Restaurant |
 
 ## Stack
 
@@ -18,28 +27,49 @@ _Replace the heading above with the project's name, and this line with one sente
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Frontend: React + Vite, Tailwind CSS, shadcn/ui, Wouter routing
+- Auth: JWT (jsonwebtoken + bcrypt)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — OpenAPI spesifikatsiyasi (source of truth)
+- `lib/api-client-react/src/generated/` — Generatsiya qilingan React Query hooklar
+- `lib/api-zod/src/generated/` — Generatsiya qilingan Zod schemalar
+- `lib/db/src/schema/index.ts` — Barcha DB jadvallari
+- `artifacts/api-server/src/routes/` — Backend routelar
+- `artifacts/pos-crm/src/pages/` — Frontend sahifalar
+  - `owner/` — Egasi dashboardi, filiallar, foydalanuvchilar
+  - `admin/` — Admin boshqaruv, POS terminal, mahsulotlar, mijozlar, qarz daftar
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Contract-first API: OpenAPI → orval → React Query hooks va Zod schemalar
+- JWT tokenlar `Authorization: Bearer` header orqali yuboriladi va localStorage'da saqlanadi
+- Qarz (debt) avtomatik yaratiladi, agar buyurtma "qarzga" to'lansa
+- Owner barcha filiallarga ega, adminlar faqat o'z filiallarini boshqaradi
+- Sidebar navigatsiya rolga qarab dinamik ko'rsatiladi (owner vs admin)
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Login**: JWT autentifikatsiya, rol asosida yo'naltirish
+- **Owner panel**: Barcha filiallar ko'rinishi, yangi filial qo'shish, admin tayinlash, foydalanuvchi qo'shish
+- **Admin panel**: O'z filiali uchun boshqaruv paneli
+- **POS Terminal**: Mahsulotlarni savatga qo'shish, naqd yoki qarzga sotish, chek ko'rsatish
+- **Mahsulotlar**: CRUD, kategoriya bo'yicha ko'rsatish, mavjudlik holati
+- **Mijozlar**: Qo'shish, qidiruv, qarz holati ko'rsatish
+- **Qarz Daftar**: Barcha qarzlar, qisman yoki to'liq to'lash imkoniyati
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Interfeys O'zbek tilida
+- Dark theme (zinc rang palitasi)
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Bcrypt hash generatsiya qilish uchun: `node -e "const bcrypt = require('/home/runner/workspace/artifacts/api-server/node_modules/bcrypt'); bcrypt.hash('parol', 10).then(console.log)"`
+- `pnpm --filter @workspace/db run push` dan keyin API server restart qilish kerak
+- `setAuthTokenGetter` ni `@workspace/api-client-react` dan import qilish kerak (subpath emas, asosiy export)
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- `pnpm-workspace` skill: workspace strukturasi, TypeScript setup
