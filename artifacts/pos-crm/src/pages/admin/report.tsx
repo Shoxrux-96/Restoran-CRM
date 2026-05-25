@@ -8,6 +8,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line,
 } from "recharts";
 import { BarChart3, TrendingUp, ShoppingBag, Receipt, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function fmt(n: number) {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + " mln";
@@ -37,13 +38,13 @@ const STATUS_LABELS: Record<string, string> = {
 type OrderItem = { productId: number; productName: string; quantity: number; unitPrice: number; total: number };
 type Order = {
   id: number;
-  customerName: string | null;
-  roomName: string | null;
-  tableNumber: string | null;
+  customerName?: string | null;
+  roomName?: string | null;
+  tableNumber?: string | null;
   totalAmount: number;
   paymentType: string;
   status: string;
-  notes: string | null;
+  notes?: string | null;
   items: OrderItem[];
   createdAt: string;
 };
@@ -64,13 +65,13 @@ export default function AdminReport() {
     },
   });
 
-  const filteredOrders = (data?.allOrders ?? []).filter((o) =>
+  const filteredOrders = ((data?.allOrders ?? []) as Order[]).filter((o) =>
     filterPayment === "all" ? true : o.paymentType === filterPayment
   );
 
   const chartData = (data?.monthlySales ?? []).map((m) => ({
-    name: m.monthName.slice(0, 3),
-    fullName: m.monthName,
+    name: (m.monthName ?? "").slice(0, 3),
+    fullName: m.monthName ?? "",
     revenue: m.revenue,
     orders: m.orderCount,
   }));
@@ -222,7 +223,7 @@ export default function AdminReport() {
               <div className="grid grid-cols-6 md:grid-cols-12 gap-1 mt-3">
                 {(data?.monthlySales ?? []).map((m) => (
                   <div key={m.month} className="text-center">
-                    <p className="text-xs text-zinc-600">{m.monthName.slice(0, 3)}</p>
+                    <p className="text-xs text-zinc-600">{(m.monthName ?? "").slice(0, 3)}</p>
                     <p className="text-xs font-medium text-blue-400">{m.orderCount}</p>
                   </div>
                 ))}
