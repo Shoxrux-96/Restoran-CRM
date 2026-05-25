@@ -919,6 +919,10 @@ components:
           type: string
         description:
           type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        stock:
+          type: ["integer", "null"]
         isAvailable:
           type: boolean
         createdAt:
@@ -936,6 +940,10 @@ components:
           type: string
         description:
           type: string
+        imageUrl:
+          type: string
+        stock:
+          type: integer
         isAvailable:
           type: boolean
 
@@ -950,6 +958,10 @@ components:
           type: string
         description:
           type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
+        stock:
+          type: ["integer", "null"]
         isAvailable:
           type: boolean
 

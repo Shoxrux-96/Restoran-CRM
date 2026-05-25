@@ -11,5 +11,7 @@ export interface ProductInput {
   price: number;
   category: string;
   description?: string;
+  imageUrl?: string;
+  stock?: number;
   isAvailable?: boolean;
 }

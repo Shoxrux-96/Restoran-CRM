@@ -132,6 +132,10 @@ export interface Product {
   category: string;
   /** @nullable */
   description?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  stock?: number | null;
   isAvailable?: boolean;
   createdAt?: string;
 }
@@ -141,6 +145,8 @@ export interface ProductInput {
   price: number;
   category: string;
   description?: string;
+  imageUrl?: string;
+  stock?: number;
   isAvailable?: boolean;
 }
 
@@ -150,6 +156,10 @@ export interface ProductUpdate {
   category?: string;
   /** @nullable */
   description?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  stock?: number | null;
   isAvailable?: boolean;
 }
 

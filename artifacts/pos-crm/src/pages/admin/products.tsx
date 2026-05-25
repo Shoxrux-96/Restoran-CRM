@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Package, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Package, Pencil, Trash2, Search, ImageIcon, Layers, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 function fmt(n: number) {
@@ -24,21 +24,21 @@ function fmt(n: number) {
 }
 
 const CATEGORIES = [
-  { value: "Taomlar", label: "🍽️ Taomlar (Блюда)" },
-  { value: "Sho'rvalar", label: "🍜 Sho'rvalar (Супы)" },
-  { value: "Salatlar", label: "🥗 Salatlar (Салаты)" },
-  { value: "Ichimliklar", label: "🥤 Ichimliklar (Напитки)" },
-  { value: "Shirinliklar", label: "🍰 Shirinliklar (Десерты)" },
-  { value: "Muzqaymoqlar", label: "🍦 Muzqaymoqlar (Мороженое)" },
-  { value: "Spirtli ichimliklar", label: "🍷 Spirtli ichimliklar (Алкоголь)" },
-  { value: "Nonlar", label: "🍞 Nonlar va pishiriqlar (Хлеб)" },
-  { value: "Lavashlar", label: "🫓 Lavashlar (Лаваши)" },
-  { value: "Gamburgerlar", label: "🍔 Gamburgerlar (Бургеры)" },
-  { value: "Pizzalar", label: "🍕 Pizzalar (Пицца)" },
-  { value: "Sushilar", label: "🍣 Sushilar (Суши)" },
-  { value: "Mazzalar", label: "🍡 Mazzalar (Закуски)" },
-  { value: "Fastfood", label: "🌮 Fastfood" },
-  { value: "Boshqa", label: "📦 Boshqa (Другое)" },
+  { value: "Taomlar", label: "🍽️ Taomlar", ru: "Блюда", color: "bg-orange-500/10 text-orange-400 border-orange-800" },
+  { value: "Sho'rvalar", label: "🍜 Sho'rvalar", ru: "Супы", color: "bg-yellow-500/10 text-yellow-400 border-yellow-800" },
+  { value: "Salatlar", label: "🥗 Salatlar", ru: "Салаты", color: "bg-green-500/10 text-green-400 border-green-800" },
+  { value: "Ichimliklar", label: "🥤 Ichimliklar", ru: "Напитки", color: "bg-blue-500/10 text-blue-400 border-blue-800" },
+  { value: "Shirinliklar", label: "🍰 Shirinliklar", ru: "Десерты", color: "bg-pink-500/10 text-pink-400 border-pink-800" },
+  { value: "Muzqaymoqlar", label: "🍦 Muzqaymoqlar", ru: "Мороженое", color: "bg-cyan-500/10 text-cyan-400 border-cyan-800" },
+  { value: "Spirtli ichimliklar", label: "🍷 Spirtli ichimliklar", ru: "Алкоголь", color: "bg-purple-500/10 text-purple-400 border-purple-800" },
+  { value: "Nonlar", label: "🍞 Nonlar", ru: "Хлеб", color: "bg-amber-500/10 text-amber-400 border-amber-800" },
+  { value: "Lavashlar", label: "🫓 Lavashlar", ru: "Лаваши", color: "bg-amber-500/10 text-amber-400 border-amber-800" },
+  { value: "Gamburgerlar", label: "🍔 Gamburgerlar", ru: "Бургеры", color: "bg-red-500/10 text-red-400 border-red-800" },
+  { value: "Pizzalar", label: "🍕 Pizzalar", ru: "Пицца", color: "bg-red-500/10 text-red-400 border-red-800" },
+  { value: "Sushilar", label: "🍣 Sushilar", ru: "Суши", color: "bg-indigo-500/10 text-indigo-400 border-indigo-800" },
+  { value: "Mazzalar", label: "🍡 Mazzalar", ru: "Закуски", color: "bg-zinc-500/10 text-zinc-400 border-zinc-700" },
+  { value: "Fastfood", label: "🌮 Fastfood", ru: "Fastfood", color: "bg-orange-500/10 text-orange-400 border-orange-800" },
+  { value: "Boshqa", label: "📦 Boshqa", ru: "Другое", color: "bg-zinc-500/10 text-zinc-400 border-zinc-700" },
 ];
 
 const UNITS = [
@@ -56,8 +56,10 @@ const UNITS = [
   { value: "piyola", label: "piyola (пиала)" },
   { value: "qadoq", label: "qadoq (пачка)" },
   { value: "lagan", label: "lagan (ляган)" },
-  { value: "sm", label: "sm (см)" },
 ];
+
+const getCategoryMeta = (value: string) =>
+  CATEGORIES.find((c) => c.value === value) ?? { label: value, ru: "", color: "bg-zinc-500/10 text-zinc-400 border-zinc-700" };
 
 const emptyForm = {
   name: "",
@@ -65,8 +67,12 @@ const emptyForm = {
   category: CATEGORIES[0].value,
   unit: UNITS[0].value,
   description: "",
+  imageUrl: "",
+  stock: "",
   isAvailable: true,
 };
+
+type ViewMode = "grid" | "list";
 
 export default function AdminProducts() {
   const { user } = useAuth();
@@ -84,7 +90,8 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState("");
-  const [filterCat, setFilterCat] = useState<string>("all");
+  const [filterCat, setFilterCat] = useState("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   const openCreate = () => {
     setEditing(null);
@@ -100,6 +107,8 @@ export default function AdminProducts() {
       category: p.category,
       unit: (p as any).unit ?? UNITS[0].value,
       description: p.description ?? "",
+      imageUrl: (p as any).imageUrl ?? "",
+      stock: (p as any).stock != null ? String((p as any).stock) : "",
       isAvailable: p.isAvailable ?? true,
     });
     setOpen(true);
@@ -117,16 +126,18 @@ export default function AdminProducts() {
       price: Number(form.price),
       category: form.category,
       description: form.description || undefined,
+      imageUrl: form.imageUrl || undefined,
+      stock: form.stock ? Number(form.stock) : undefined,
       isAvailable: form.isAvailable,
     };
     if (editing) {
       updateProduct.mutate({ venueId, id: editing.id, data }, {
-        onSuccess: () => { invalidate(); setOpen(false); toast({ title: "Yangilandi" }); },
+        onSuccess: () => { invalidate(); setOpen(false); toast({ title: "✅ Yangilandi" }); },
         onError: () => toast({ title: "Xatolik", variant: "destructive" }),
       });
     } else {
       createProduct.mutate({ venueId, data }, {
-        onSuccess: () => { invalidate(); setOpen(false); toast({ title: "Mahsulot qo'shildi" }); },
+        onSuccess: () => { invalidate(); setOpen(false); toast({ title: "✅ Mahsulot qo'shildi" }); },
         onError: () => toast({ title: "Xatolik", variant: "destructive" }),
       });
     }
@@ -141,17 +152,15 @@ export default function AdminProducts() {
   };
 
   const filtered = (products ?? []).filter((p) => {
-    const matchSearch = search.length === 0 || p.name.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || p.name.toLowerCase().includes(search.toLowerCase());
     const matchCat = filterCat === "all" || p.category === filterCat;
     return matchSearch && matchCat;
   });
 
   const usedCategories = [...new Set(products?.map((p) => p.category) ?? [])];
-  const groupedByCategory = usedCategories.map((cat) => ({
-    cat,
-    label: CATEGORIES.find((c) => c.value === cat)?.label ?? cat,
-    items: filtered.filter((p) => p.category === cat),
-  })).filter((g) => g.items.length > 0);
+  const grouped = usedCategories
+    .map((cat) => ({ cat, meta: getCategoryMeta(cat), items: filtered.filter((p) => p.category === cat) }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <div className="space-y-5">
@@ -159,116 +168,148 @@ export default function AdminProducts() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Mahsulotlar</h1>
-          <p className="text-zinc-400 mt-1">{products?.length ?? 0} ta mahsulot</p>
+          <p className="text-zinc-500 text-sm mt-0.5">{products?.length ?? 0} ta mahsulot</p>
         </div>
-        <Button onClick={openCreate} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={openCreate} className="bg-blue-600 hover:bg-blue-700 gap-2">
+          <Plus className="h-4 w-4" />
           Yangi Mahsulot
         </Button>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-48">
+      {/* Toolbar */}
+      <div className="flex gap-3 items-center flex-wrap">
+        <div className="relative flex-1 min-w-52">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Mahsulot qidiring..."
-            className="pl-9 bg-zinc-800 border-zinc-700 text-white"
+            placeholder="Mahsulot qidirish..."
+            className="pl-9 bg-zinc-800 border-zinc-700 text-white h-9"
           />
         </div>
         <select
           value={filterCat}
           onChange={(e) => setFilterCat(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+          className="bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 h-9"
         >
           <option value="all">Barcha kategoriyalar</option>
-          {usedCategories.map((c) => (
-            <option key={c} value={c}>{CATEGORIES.find((x) => x.value === c)?.label ?? c}</option>
-          ))}
+          {usedCategories.map((c) => {
+            const m = getCategoryMeta(c);
+            return <option key={c} value={c}>{m.label}</option>;
+          })}
         </select>
+        {/* View mode */}
+        <div className="flex gap-1 bg-zinc-800 rounded-md p-1">
+          <button
+            onClick={() => setViewMode("grid")}
+            className={`px-2 py-1 rounded text-xs transition-colors ${viewMode === "grid" ? "bg-blue-600 text-white" : "text-zinc-400 hover:text-white"}`}
+          >
+            Grid
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`px-2 py-1 rounded text-xs transition-colors ${viewMode === "list" ? "bg-blue-600 text-white" : "text-zinc-400 hover:text-white"}`}
+          >
+            Ro'yxat
+          </button>
+        </div>
       </div>
 
+      {/* Content */}
       {isLoading ? (
-        <div className="text-zinc-400 py-8 text-center">Yuklanmoqda...</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-52 bg-zinc-800/50 rounded-xl animate-pulse" />
+          ))}
+        </div>
       ) : !products?.length ? (
-        <Card className="bg-zinc-950 border-zinc-800">
-          <CardContent className="py-16 text-center">
-            <Package className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-            <p className="text-zinc-400">Hali mahsulot yo'q</p>
-            <Button onClick={openCreate} className="mt-4 bg-blue-600 hover:bg-blue-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Birinchi mahsulotni qo'shing
-            </Button>
-          </CardContent>
-        </Card>
-      ) : groupedByCategory.length === 0 ? (
-        <div className="text-zinc-500 text-center py-10">Hech narsa topilmadi</div>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center mb-4">
+            <Package className="h-8 w-8 text-zinc-600" />
+          </div>
+          <p className="text-zinc-400 font-medium">Mahsulotlar yo'q</p>
+          <p className="text-zinc-600 text-sm mt-1">Birinchi mahsulotni qo'shing</p>
+          <Button onClick={openCreate} className="mt-4 bg-blue-600 hover:bg-blue-700 gap-2">
+            <Plus className="h-4 w-4" />
+            Qo'shish
+          </Button>
+        </div>
+      ) : grouped.length === 0 ? (
+        <div className="text-center py-12 text-zinc-600">Qidiruv bo'yicha natija topilmadi</div>
       ) : (
-        <div className="space-y-5">
-          {groupedByCategory.map(({ cat, label, items }) => (
+        <div className="space-y-6">
+          {grouped.map(({ cat, meta, items }) => (
             <div key={cat}>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-sm font-semibold text-zinc-300">{label}</h3>
-                <span className="text-xs text-zinc-600">{items.length} ta</span>
+              {/* Category header */}
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{meta.label.split(" ")[0]}</span>
+                  <div>
+                    <h3 className="text-sm font-semibold text-zinc-200">{meta.label.slice(meta.label.indexOf(" ") + 1)}</h3>
+                    {meta.ru && <p className="text-xs text-zinc-600">{meta.ru}</p>}
+                  </div>
+                </div>
+                <Badge variant="outline" className={`text-xs ${meta.color}`}>{items.length} ta</Badge>
+                <div className="h-px flex-1 bg-zinc-800" />
               </div>
-              <div className="space-y-1.5">
-                {items.map((p) => (
-                  <Card key={p.id} className="bg-zinc-950 border-zinc-800 hover:border-zinc-700 transition-colors">
-                    <CardContent className="py-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${p.isAvailable ? "bg-green-500" : "bg-zinc-600"}`} />
-                        <div className="min-w-0">
-                          <p className="font-medium text-white">{p.name}</p>
-                          {p.description && <p className="text-xs text-zinc-500 truncate">{p.description}</p>}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0 ml-4">
-                        <span className="font-semibold text-white">{fmt(p.price)}</span>
-                        <Badge
-                          variant="outline"
-                          className={p.isAvailable
-                            ? "bg-green-600/10 text-green-400 border-green-800 text-xs"
-                            : "bg-zinc-800 text-zinc-500 border-zinc-700 text-xs"}
-                        >
-                          {p.isAvailable ? "Mavjud" : "Yo'q"}
-                        </Badge>
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(p)} className="text-zinc-400 hover:text-white h-8 w-8">
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(p.id)} className="text-red-500 hover:bg-red-500/10 h-8 w-8">
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+
+              {viewMode === "grid" ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                  {items.map((p) => (
+                    <ProductCard
+                      key={p.id}
+                      product={p}
+                      catMeta={meta}
+                      onEdit={openEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {items.map((p) => (
+                    <ProductRow
+                      key={p.id}
+                      product={p}
+                      catMeta={meta}
+                      onEdit={openEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* Modal */}
+      {/* Create/Edit Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-md">
+        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editing ? "Mahsulotni Tahrirlash" : "Yangi Mahsulot"}</DialogTitle>
+            <DialogTitle>{editing ? "Mahsulotni Tahrirlash" : "Yangi Mahsulot Qo'shish"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label className="text-zinc-300">Nomi *</Label>
-              <Input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Mahsulot nomi"
-                className="bg-zinc-800 border-zinc-700 mt-1"
-              />
-            </div>
+          <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+            {/* Image preview */}
+            {form.imageUrl && (
+              <div className="relative rounded-lg overflow-hidden h-36 bg-zinc-800">
+                <img src={form.imageUrl} alt="preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <Label className="text-zinc-300 text-xs">Nomi *</Label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Mahsulot nomi"
+                  className="bg-zinc-800 border-zinc-700 mt-1"
+                />
+              </div>
+
               <div>
-                <Label className="text-zinc-300">Narxi (so'm) *</Label>
+                <Label className="text-zinc-300 text-xs">Narxi (so'm) *</Label>
                 <Input
                   type="number"
                   value={form.price}
@@ -277,47 +318,59 @@ export default function AdminProducts() {
                   className="bg-zinc-800 border-zinc-700 mt-1"
                 />
               </div>
+
               <div>
-                <Label className="text-zinc-300">O'lchov birligi</Label>
+                <Label className="text-zinc-300 text-xs">Miqdor (zaxira)</Label>
+                <Input
+                  type="number"
+                  value={form.stock}
+                  onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                  placeholder="100"
+                  className="bg-zinc-800 border-zinc-700 mt-1"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label className="text-zinc-300 text-xs">Kategoriya *</Label>
                 <select
-                  value={form.unit}
-                  onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                  value={form.category}
+                  onChange={(e) => setForm({ ...form, category: e.target.value })}
                   className="w-full mt-1 bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                 >
-                  {UNITS.map((u) => (
-                    <option key={u.value} value={u.value}>{u.label}</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c.value} value={c.value}>{c.label} · {c.ru}</option>
                   ))}
                 </select>
               </div>
-            </div>
-            <div>
-              <Label className="text-zinc-300">Kategoriya *</Label>
-              <select
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full mt-1 bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label className="text-zinc-300">Tavsif (ixtiyoriy)</Label>
-              <Input
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Qisqacha tavsif"
-                className="bg-zinc-800 border-zinc-700 mt-1"
-              />
-            </div>
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={form.isAvailable}
-                onCheckedChange={(v) => setForm({ ...form, isAvailable: v })}
-                className="data-[state=checked]:bg-green-600"
-              />
-              <Label className="text-zinc-300">Mavjud (sotuvda bor)</Label>
+
+              <div className="col-span-2">
+                <Label className="text-zinc-300 text-xs">Rasm URL (ixtiyoriy)</Label>
+                <Input
+                  value={form.imageUrl}
+                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                  placeholder="https://example.com/image.jpg"
+                  className="bg-zinc-800 border-zinc-700 mt-1"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <Label className="text-zinc-300 text-xs">Tavsif (ixtiyoriy)</Label>
+                <Input
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  placeholder="Mahsulot haqida qisqacha ma'lumot"
+                  className="bg-zinc-800 border-zinc-700 mt-1"
+                />
+              </div>
+
+              <div className="col-span-2 flex items-center gap-3 pt-1">
+                <Switch
+                  checked={form.isAvailable}
+                  onCheckedChange={(v) => setForm({ ...form, isAvailable: v })}
+                  className="data-[state=checked]:bg-green-600"
+                />
+                <Label className="text-zinc-300 text-sm">Sotuvda mavjud</Label>
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -332,6 +385,136 @@ export default function AdminProducts() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+/* ── Product Card (Grid view) ──────────────────────────── */
+function ProductCard({ product: p, catMeta, onEdit, onDelete }: {
+  product: Product;
+  catMeta: { label: string; color: string };
+  onEdit: (p: Product) => void;
+  onDelete: (id: number) => void;
+}) {
+  const stock = (p as any).stock as number | null;
+  const imageUrl = (p as any).imageUrl as string | null;
+
+  return (
+    <div className={`group relative bg-zinc-950 border rounded-xl overflow-hidden transition-all hover:border-zinc-600 hover:shadow-lg hover:shadow-black/30 ${!p.isAvailable ? "opacity-60 border-zinc-800/50" : "border-zinc-800"}`}>
+      {/* Image area */}
+      <div className="relative h-36 bg-zinc-800 overflow-hidden">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={p.name}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+              (e.target as HTMLImageElement).parentElement!.classList.add("flex", "items-center", "justify-center");
+            }}
+          />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <span className="text-4xl opacity-30">{catMeta.label.split(" ")[0]}</span>
+          </div>
+        )}
+
+        {/* Availability badge */}
+        <div className="absolute top-2 left-2">
+          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${p.isAvailable ? "bg-green-600/80 text-white" : "bg-zinc-700/80 text-zinc-400"}`}>
+            {p.isAvailable ? "Mavjud" : "Yo'q"}
+          </span>
+        </div>
+
+        {/* Action buttons - appear on hover */}
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+          <button
+            onClick={() => onEdit(p)}
+            className="p-2 bg-blue-600 rounded-lg text-white hover:bg-blue-700 transition-colors"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => onDelete(p.id)}
+            className="p-2 bg-red-600/80 rounded-lg text-white hover:bg-red-700 transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Info area */}
+      <div className="p-3">
+        <h4 className="font-semibold text-white text-sm leading-tight line-clamp-2 mb-1">{p.name}</h4>
+        {p.description && (
+          <p className="text-xs text-zinc-500 line-clamp-2 mb-2">{p.description}</p>
+        )}
+        <div className="flex items-end justify-between gap-1 mt-auto">
+          <p className="text-base font-bold text-blue-400">{new Intl.NumberFormat("uz-UZ").format(p.price)}<span className="text-xs text-zinc-500 font-normal ml-0.5">so'm</span></p>
+          {stock != null && (
+            <div className="flex items-center gap-1 text-xs">
+              <Layers className="h-3 w-3 text-zinc-500" />
+              <span className={stock <= 5 ? "text-red-400 font-medium" : "text-zinc-400"}>{stock}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Product Row (List view) ───────────────────────────── */
+function ProductRow({ product: p, catMeta, onEdit, onDelete }: {
+  product: Product;
+  catMeta: { label: string; color: string };
+  onEdit: (p: Product) => void;
+  onDelete: (id: number) => void;
+}) {
+  const stock = (p as any).stock as number | null;
+  const imageUrl = (p as any).imageUrl as string | null;
+
+  return (
+    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${p.isAvailable ? "bg-zinc-950 border-zinc-800 hover:border-zinc-700" : "bg-zinc-950/50 border-zinc-800/50 opacity-60"}`}>
+      {/* Thumbnail */}
+      <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
+        {imageUrl ? (
+          <img src={imageUrl} alt={p.name} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-xl opacity-40">{catMeta.label.split(" ")[0]}</span>
+        )}
+      </div>
+
+      {/* Name + description */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="font-medium text-white text-sm truncate">{p.name}</p>
+          {!p.isAvailable && <span className="text-xs text-zinc-600 shrink-0">· Yo'q</span>}
+        </div>
+        {p.description && <p className="text-xs text-zinc-500 truncate mt-0.5">{p.description}</p>}
+      </div>
+
+      {/* Stock */}
+      {stock != null && (
+        <div className="flex items-center gap-1 shrink-0">
+          <Layers className="h-3 w-3 text-zinc-600" />
+          <span className={`text-xs ${stock <= 5 ? "text-red-400 font-medium" : "text-zinc-500"}`}>{stock} ta</span>
+        </div>
+      )}
+
+      {/* Price */}
+      <p className="text-sm font-bold text-white shrink-0 min-w-24 text-right">
+        {new Intl.NumberFormat("uz-UZ").format(p.price)}<span className="text-xs text-zinc-500 font-normal"> so'm</span>
+      </p>
+
+      {/* Actions */}
+      <div className="flex gap-1 shrink-0">
+        <Button variant="ghost" size="icon" onClick={() => onEdit(p)} className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <Pencil className="h-3.5 w-3.5" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => onDelete(p.id)} className="h-8 w-8 text-zinc-600 hover:text-red-400 hover:bg-red-400/10">
+          <Trash2 className="h-3.5 w-3.5" />
+        </Button>
+      </div>
     </div>
   );
 }

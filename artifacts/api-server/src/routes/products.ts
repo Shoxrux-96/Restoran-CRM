@@ -18,6 +18,8 @@ function mapProduct(p: typeof productsTable.$inferSelect) {
     price: parseFloat(p.price),
     category: p.category,
     description: p.description,
+    imageUrl: p.imageUrl ?? null,
+    stock: p.stock ?? null,
     isAvailable: p.isAvailable,
     createdAt: p.createdAt.toISOString(),
   };
@@ -35,11 +37,13 @@ router.get("/venues/:venueId/products", requireAuth, async (req, res): Promise<v
 
 router.post("/venues/:venueId/products", requireAuth, async (req, res): Promise<void> => {
   const venueId = parseId(req.params.venueId);
-  const { name, price, category, description, isAvailable } = req.body as {
+  const { name, price, category, description, imageUrl, stock, isAvailable } = req.body as {
     name?: string;
     price?: number;
     category?: string;
     description?: string;
+    imageUrl?: string;
+    stock?: number;
     isAvailable?: boolean;
   };
   if (!name || price == null || !category) {
@@ -54,6 +58,8 @@ router.post("/venues/:venueId/products", requireAuth, async (req, res): Promise<
       price: String(price),
       category,
       description: description ?? null,
+      imageUrl: imageUrl ?? null,
+      stock: stock ?? null,
       isAvailable: isAvailable !== false,
     })
     .returning();
@@ -63,11 +69,13 @@ router.post("/venues/:venueId/products", requireAuth, async (req, res): Promise<
 router.patch("/venues/:venueId/products/:id", requireAuth, async (req, res): Promise<void> => {
   const venueId = parseId(req.params.venueId);
   const id = parseId(req.params.id);
-  const { name, price, category, description, isAvailable } = req.body as {
+  const { name, price, category, description, imageUrl, stock, isAvailable } = req.body as {
     name?: string;
     price?: number;
     category?: string;
     description?: string | null;
+    imageUrl?: string | null;
+    stock?: number | null;
     isAvailable?: boolean;
   };
   const [product] = await db
@@ -77,6 +85,8 @@ router.patch("/venues/:venueId/products/:id", requireAuth, async (req, res): Pro
       ...(price !== undefined && { price: String(price) }),
       ...(category !== undefined && { category }),
       ...(description !== undefined && { description }),
+      ...(imageUrl !== undefined && { imageUrl }),
+      ...(stock !== undefined && { stock }),
       ...(isAvailable !== undefined && { isAvailable }),
     })
     .where(and(eq(productsTable.id, id), eq(productsTable.venueId, venueId)))

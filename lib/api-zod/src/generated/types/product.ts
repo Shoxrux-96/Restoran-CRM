@@ -14,6 +14,10 @@ export interface Product {
   category: string;
   /** @nullable */
   description?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  stock?: number | null;
   isAvailable?: boolean;
   createdAt?: string;
 }
