@@ -49,7 +49,7 @@ args = "PORT=24899 pnpm --filter @workspace/pos-crm run dev"
 waitForPort = 24899
 
 [agent]
-stack = "PNPM_WORKSPACE"
+stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
 
 [postMerge]
