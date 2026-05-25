@@ -344,13 +344,50 @@ export default function AdminProducts() {
               </div>
 
               <div className="col-span-2">
-                <Label className="text-zinc-300 text-xs">Rasm URL (ixtiyoriy)</Label>
-                <Input
-                  value={form.imageUrl}
-                  onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                  placeholder="https://example.com/image.jpg"
-                  className="bg-zinc-800 border-zinc-700 mt-1"
-                />
+                <Label className="text-zinc-300 text-xs">Rasm (ixtiyoriy)</Label>
+                <div className="mt-1 space-y-2">
+                  {/* Image preview */}
+                  {form.imageUrl && (
+                    <div className="relative rounded-lg overflow-hidden h-28 bg-zinc-800 group">
+                      <img src={form.imageUrl} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, imageUrl: "" })}
+                        className="absolute top-1.5 right-1.5 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center gap-2 w-full h-10 border border-dashed border-zinc-600 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-500/5 transition-colors text-sm text-zinc-400 hover:text-blue-400">
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    {form.imageUrl ? "Boshqa rasm tanlash" : "Kompyuterdan rasm yuklash"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const canvas = document.createElement("canvas");
+                        const img = new Image();
+                        img.onload = () => {
+                          const MAX = 500;
+                          let w = img.width, h = img.height;
+                          if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
+                          else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
+                          canvas.width = w; canvas.height = h;
+                          canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+                          const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+                          setForm((f) => ({ ...f, imageUrl: dataUrl }));
+                          URL.revokeObjectURL(img.src);
+                        };
+                        img.src = URL.createObjectURL(file);
+                        e.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
 
               <div className="col-span-2">

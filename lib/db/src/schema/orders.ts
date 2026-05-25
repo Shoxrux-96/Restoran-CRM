@@ -11,8 +11,9 @@ export const ordersTable = pgTable("orders", {
   tableNumber: integer("table_number"),
   roomName: text("room_name"),
   totalAmount: numeric("total_amount", { precision: 12, scale: 2 }).notNull(),
-  paymentType: text("payment_type", { enum: ["cash", "debt"] }).notNull().default("cash"),
-  status: text("status", { enum: ["completed", "debt"] }).notNull().default("completed"),
+  paymentType: text("payment_type", { enum: ["cash", "card", "transfer", "debt"] }).notNull().default("cash"),
+  paymentSplit: text("payment_split"),
+  status: text("status", { enum: ["completed", "debt", "cancelled"] }).notNull().default("completed"),
   notes: text("notes"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

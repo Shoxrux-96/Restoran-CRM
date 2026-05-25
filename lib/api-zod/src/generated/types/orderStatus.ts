@@ -12,4 +12,5 @@ export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 export const OrderStatus = {
   completed: 'completed',
   debt: 'debt',
+  cancelled: 'cancelled',
 } as const;

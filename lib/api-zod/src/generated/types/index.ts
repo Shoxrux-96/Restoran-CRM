@@ -28,6 +28,7 @@ export * from './orderItemInput';
 export * from './orderPaymentType';
 export * from './orderStatus';
 export * from './ownerSummary';
+export * from './paymentSplit';
 export * from './product';
 export * from './productInput';
 export * from './productUpdate';

@@ -1015,6 +1015,18 @@ components:
         quantity:
           type: integer
 
+    PaymentSplit:
+      type: object
+      properties:
+        cash:
+          type: number
+        card:
+          type: number
+        transfer:
+          type: number
+        debt:
+          type: number
+
     Order:
       type: object
       required: [id, venueId, totalAmount, paymentType, status, createdAt]
@@ -1031,10 +1043,12 @@ components:
           type: number
         paymentType:
           type: string
-          enum: [cash, debt]
+          enum: [cash, card, transfer, debt]
+        paymentSplit:
+          $ref: "#/components/schemas/PaymentSplit"
         status:
           type: string
-          enum: [completed, debt]
+          enum: [completed, debt, cancelled]
         notes:
           type: ["string", "null"]
         createdAt:
@@ -1056,10 +1070,12 @@ components:
           type: number
         paymentType:
           type: string
-          enum: [cash, debt]
+          enum: [cash, card, transfer, debt]
+        paymentSplit:
+          $ref: "#/components/schemas/PaymentSplit"
         status:
           type: string
-          enum: [completed, debt]
+          enum: [completed, debt, cancelled]
         notes:
           type: ["string", "null"]
         items:
@@ -1089,7 +1105,9 @@ components:
             $ref: "#/components/schemas/OrderItemInput"
         paymentType:
           type: string
-          enum: [cash, debt]
+          enum: [cash, card, transfer, debt]
+        paymentSplit:
+          $ref: "#/components/schemas/PaymentSplit"
         notes:
           type: string
 

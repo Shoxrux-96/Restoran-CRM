@@ -191,11 +191,20 @@ export interface OrderItemInput {
   quantity: number;
 }
 
+export interface PaymentSplit {
+  cash?: number;
+  card?: number;
+  transfer?: number;
+  debt?: number;
+}
+
 export type OrderPaymentType = typeof OrderPaymentType[keyof typeof OrderPaymentType];
 
 
 export const OrderPaymentType = {
   cash: 'cash',
+  card: 'card',
+  transfer: 'transfer',
   debt: 'debt',
 } as const;
 
@@ -205,6 +214,7 @@ export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 export const OrderStatus = {
   completed: 'completed',
   debt: 'debt',
+  cancelled: 'cancelled',
 } as const;
 
 export interface Order {
@@ -216,6 +226,7 @@ export interface Order {
   customerName?: string | null;
   totalAmount: number;
   paymentType: OrderPaymentType;
+  paymentSplit?: PaymentSplit;
   status: OrderStatus;
   /** @nullable */
   notes?: string | null;
@@ -227,6 +238,8 @@ export type OrderDetailPaymentType = typeof OrderDetailPaymentType[keyof typeof 
 
 export const OrderDetailPaymentType = {
   cash: 'cash',
+  card: 'card',
+  transfer: 'transfer',
   debt: 'debt',
 } as const;
 
@@ -236,6 +249,7 @@ export type OrderDetailStatus = typeof OrderDetailStatus[keyof typeof OrderDetai
 export const OrderDetailStatus = {
   completed: 'completed',
   debt: 'debt',
+  cancelled: 'cancelled',
 } as const;
 
 export interface OrderDetail {
@@ -247,6 +261,7 @@ export interface OrderDetail {
   customerName?: string | null;
   totalAmount: number;
   paymentType: OrderDetailPaymentType;
+  paymentSplit?: PaymentSplit;
   status: OrderDetailStatus;
   /** @nullable */
   notes?: string | null;
@@ -259,6 +274,8 @@ export type OrderInputPaymentType = typeof OrderInputPaymentType[keyof typeof Or
 
 export const OrderInputPaymentType = {
   cash: 'cash',
+  card: 'card',
+  transfer: 'transfer',
   debt: 'debt',
 } as const;
 
@@ -275,6 +292,7 @@ export interface OrderInput {
   roomName?: string | null;
   items: OrderItemInput[];
   paymentType: OrderInputPaymentType;
+  paymentSplit?: PaymentSplit;
   notes?: string;
 }
 

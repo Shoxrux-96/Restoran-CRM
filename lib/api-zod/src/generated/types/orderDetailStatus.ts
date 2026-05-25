@@ -12,4 +12,5 @@ export type OrderDetailStatus = typeof OrderDetailStatus[keyof typeof OrderDetai
 export const OrderDetailStatus = {
   completed: 'completed',
   debt: 'debt',
+  cancelled: 'cancelled',
 } as const;

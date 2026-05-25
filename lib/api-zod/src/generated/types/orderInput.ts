@@ -7,6 +7,7 @@
  */
 import type { OrderInputPaymentType } from './orderInputPaymentType';
 import type { OrderItemInput } from './orderItemInput';
+import type { PaymentSplit } from './paymentSplit';
 
 export interface OrderInput {
   /** @nullable */
@@ -21,5 +22,6 @@ export interface OrderInput {
   roomName?: string | null;
   items: OrderItemInput[];
   paymentType: OrderInputPaymentType;
+  paymentSplit?: PaymentSplit;
   notes?: string;
 }

@@ -8,6 +8,7 @@
 import type { OrderDetailPaymentType } from './orderDetailPaymentType';
 import type { OrderDetailStatus } from './orderDetailStatus';
 import type { OrderItem } from './orderItem';
+import type { PaymentSplit } from './paymentSplit';
 
 export interface OrderDetail {
   id: number;
@@ -18,6 +19,7 @@ export interface OrderDetail {
   customerName?: string | null;
   totalAmount: number;
   paymentType: OrderDetailPaymentType;
+  paymentSplit?: PaymentSplit;
   status: OrderDetailStatus;
   /** @nullable */
   notes?: string | null;

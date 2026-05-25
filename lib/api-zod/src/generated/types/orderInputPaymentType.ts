@@ -11,5 +11,7 @@ export type OrderInputPaymentType = typeof OrderInputPaymentType[keyof typeof Or
 
 export const OrderInputPaymentType = {
   cash: 'cash',
+  card: 'card',
+  transfer: 'transfer',
   debt: 'debt',
 } as const;

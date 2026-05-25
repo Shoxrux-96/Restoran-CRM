@@ -10,6 +10,11 @@ function parseId(raw: string | string[]): number {
   return parseInt(s, 10);
 }
 
+function parsePaymentSplit(raw: string | null): Record<string, number> | null {
+  if (!raw) return null;
+  try { return JSON.parse(raw); } catch { return null; }
+}
+
 router.get("/venues/:venueId/orders", requireAuth, async (req, res): Promise<void> => {
   const venueId = parseId(req.params.venueId);
   const orders = await db
@@ -32,6 +37,7 @@ router.get("/venues/:venueId/orders", requireAuth, async (req, res): Promise<voi
       customerName: o.customerId ? (customerMap.get(o.customerId) ?? null) : null,
       totalAmount: parseFloat(o.totalAmount),
       paymentType: o.paymentType,
+      paymentSplit: parsePaymentSplit(o.paymentSplit),
       status: o.status,
       notes: o.notes,
       createdAt: o.createdAt.toISOString(),
@@ -41,10 +47,11 @@ router.get("/venues/:venueId/orders", requireAuth, async (req, res): Promise<voi
 
 router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<void> => {
   const venueId = parseId(req.params.venueId);
-  const { customerId, items, paymentType, notes, roomId, tableId, tableNumber, roomName } = req.body as {
+  const { customerId, items, paymentType, paymentSplit, notes, roomId, tableId, tableNumber, roomName } = req.body as {
     customerId?: number | null;
     items?: Array<{ productId: number; quantity: number }>;
     paymentType?: string;
+    paymentSplit?: Record<string, number>;
     notes?: string;
     roomId?: number | null;
     tableId?: number | null;
@@ -93,7 +100,8 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
     });
   }
 
-  const status = paymentType === "debt" ? "debt" : "completed";
+  const hasDebt = paymentType === "debt" || (paymentSplit && (paymentSplit.debt ?? 0) > 0);
+  const status = hasDebt ? "debt" : "completed";
   const [order] = await db
     .insert(ordersTable)
     .values({
@@ -104,7 +112,8 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
       tableNumber: tableNumber ?? null,
       roomName: roomName ?? null,
       totalAmount: String(totalAmount),
-      paymentType: paymentType as "cash" | "debt",
+      paymentType: paymentType as "cash" | "card" | "transfer" | "debt",
+      paymentSplit: paymentSplit ? JSON.stringify(paymentSplit) : null,
       status: status as "completed" | "debt",
       notes: notes ?? null,
     })
@@ -113,12 +122,14 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
   const itemsWithOrderId = orderItemValues.map((i) => ({ ...i, orderId: order.id }));
   const insertedItems = await db.insert(orderItemsTable).values(itemsWithOrderId).returning();
 
-  if (paymentType === "debt" && customerId) {
+  // Create debt record for any debt portion
+  const debtAmount = paymentSplit?.debt ?? (paymentType === "debt" ? totalAmount : 0);
+  if (debtAmount > 0 && customerId) {
     await db.insert(debtsTable).values({
       venueId,
       customerId,
       orderId: order.id,
-      amount: String(totalAmount),
+      amount: String(debtAmount),
       paidAmount: "0",
       status: "unpaid",
     });
@@ -144,6 +155,7 @@ router.post("/venues/:venueId/orders", requireAuth, async (req, res): Promise<vo
     roomName: order.roomName,
     totalAmount: parseFloat(order.totalAmount),
     paymentType: order.paymentType,
+    paymentSplit: parsePaymentSplit(order.paymentSplit),
     status: order.status,
     notes: order.notes,
     items: insertedItems.map((i) => ({
@@ -175,7 +187,6 @@ router.get("/venues/:venueId/orders/:id", requireAuth, async (req, res): Promise
     .from(orderItemsTable)
     .where(eq(orderItemsTable.orderId, id));
 
-
   let customerName: string | null = null;
   if (order.customerId) {
     const [customer] = await db
@@ -192,6 +203,7 @@ router.get("/venues/:venueId/orders/:id", requireAuth, async (req, res): Promise
     customerName,
     totalAmount: parseFloat(order.totalAmount),
     paymentType: order.paymentType,
+    paymentSplit: parsePaymentSplit(order.paymentSplit),
     status: order.status,
     notes: order.notes,
     items: items.map((i) => ({

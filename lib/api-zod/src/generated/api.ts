@@ -313,8 +313,14 @@ export const ListOrdersResponseItem = zod.object({
   "customerId": zod.number().nullish(),
   "customerName": zod.string().nullish(),
   "totalAmount": zod.number(),
-  "paymentType": zod.enum(['cash', 'debt']),
-  "status": zod.enum(['completed', 'debt']),
+  "paymentType": zod.enum(['cash', 'card', 'transfer', 'debt']),
+  "paymentSplit": zod.object({
+  "cash": zod.number().optional(),
+  "card": zod.number().optional(),
+  "transfer": zod.number().optional(),
+  "debt": zod.number().optional()
+}).optional(),
+  "status": zod.enum(['completed', 'debt', 'cancelled']),
   "notes": zod.string().nullish(),
   "createdAt": zod.string()
 })
@@ -338,7 +344,13 @@ export const CreateOrderBody = zod.object({
   "productId": zod.number(),
   "quantity": zod.number()
 })),
-  "paymentType": zod.enum(['cash', 'debt']),
+  "paymentType": zod.enum(['cash', 'card', 'transfer', 'debt']),
+  "paymentSplit": zod.object({
+  "cash": zod.number().optional(),
+  "card": zod.number().optional(),
+  "transfer": zod.number().optional(),
+  "debt": zod.number().optional()
+}).optional(),
   "notes": zod.string().optional()
 })
 
@@ -357,8 +369,14 @@ export const GetOrderResponse = zod.object({
   "customerId": zod.number().nullish(),
   "customerName": zod.string().nullish(),
   "totalAmount": zod.number(),
-  "paymentType": zod.enum(['cash', 'debt']),
-  "status": zod.enum(['completed', 'debt']),
+  "paymentType": zod.enum(['cash', 'card', 'transfer', 'debt']),
+  "paymentSplit": zod.object({
+  "cash": zod.number().optional(),
+  "card": zod.number().optional(),
+  "transfer": zod.number().optional(),
+  "debt": zod.number().optional()
+}).optional(),
+  "status": zod.enum(['completed', 'debt', 'cancelled']),
   "notes": zod.string().nullish(),
   "items": zod.array(zod.object({
   "productId": zod.number(),
@@ -447,8 +465,14 @@ export const GetVenueSummaryResponse = zod.object({
   "customerId": zod.number().nullish(),
   "customerName": zod.string().nullish(),
   "totalAmount": zod.number(),
-  "paymentType": zod.enum(['cash', 'debt']),
-  "status": zod.enum(['completed', 'debt']),
+  "paymentType": zod.enum(['cash', 'card', 'transfer', 'debt']),
+  "paymentSplit": zod.object({
+  "cash": zod.number().optional(),
+  "card": zod.number().optional(),
+  "transfer": zod.number().optional(),
+  "debt": zod.number().optional()
+}).optional(),
+  "status": zod.enum(['completed', 'debt', 'cancelled']),
   "notes": zod.string().nullish(),
   "createdAt": zod.string()
 }))
@@ -482,8 +506,14 @@ export const GetVenueReportResponse = zod.object({
   "customerId": zod.number().nullish(),
   "customerName": zod.string().nullish(),
   "totalAmount": zod.number(),
-  "paymentType": zod.enum(['cash', 'debt']),
-  "status": zod.enum(['completed', 'debt']),
+  "paymentType": zod.enum(['cash', 'card', 'transfer', 'debt']),
+  "paymentSplit": zod.object({
+  "cash": zod.number().optional(),
+  "card": zod.number().optional(),
+  "transfer": zod.number().optional(),
+  "debt": zod.number().optional()
+}).optional(),
+  "status": zod.enum(['completed', 'debt', 'cancelled']),
   "notes": zod.string().nullish(),
   "items": zod.array(zod.object({
   "productId": zod.number(),

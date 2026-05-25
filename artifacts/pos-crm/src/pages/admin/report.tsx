@@ -3,12 +3,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { useGetVenueReport, getGetVenueReportQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line,
 } from "recharts";
-import { BarChart3, TrendingUp, ShoppingBag, Receipt, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { BarChart3, TrendingUp, ShoppingBag, Receipt, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 function fmt(n: number) {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + " mln";
@@ -23,16 +24,17 @@ function fmtDate(iso: string) {
 }
 
 const PAYMENT_LABELS: Record<string, { label: string; color: string }> = {
-  cash: { label: "Naqd", color: "bg-green-600/20 text-green-400 border-green-800" },
-  card: { label: "Karta", color: "bg-blue-600/20 text-blue-400 border-blue-800" },
-  debt: { label: "Qarzga", color: "bg-red-600/20 text-red-400 border-red-800" },
+  cash:     { label: "Naqd",    color: "bg-green-600/20 text-green-400 border-green-800" },
+  card:     { label: "Karta",   color: "bg-blue-600/20 text-blue-400 border-blue-800" },
+  debt:     { label: "Qarzga",  color: "bg-red-600/20 text-red-400 border-red-800" },
   transfer: { label: "O'tkazma", color: "bg-purple-600/20 text-purple-400 border-purple-800" },
 };
 
 const STATUS_LABELS: Record<string, string> = {
   completed: "Tugallangan",
-  pending: "Kutilmoqda",
+  pending:   "Kutilmoqda",
   cancelled: "Bekor",
+  debt:      "Qarz",
 };
 
 type OrderItem = { productId: number; productName: string; quantity: number; unitPrice: number; total: number };
@@ -59,10 +61,7 @@ export default function AdminReport() {
   const [filterPayment, setFilterPayment] = useState<string>("all");
 
   const { data, isLoading } = useGetVenueReport(venueId, { year }, {
-    query: {
-      enabled: !!venueId,
-      queryKey: getGetVenueReportQueryKey(venueId, { year }),
-    },
+    query: { enabled: !!venueId, queryKey: getGetVenueReportQueryKey(venueId, { year }) },
   });
 
   const filteredOrders = ((data?.allOrders ?? []) as Order[]).filter((o) =>
@@ -76,8 +75,47 @@ export default function AdminReport() {
     orders: m.orderCount,
   }));
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
+  const exportToExcel = () => {
+    const orders = (data?.allOrders ?? []) as Order[];
+    if (!orders.length) return;
+
+    // Sheet 1: Summary by month
+    const monthlySheet = (data?.monthlySales ?? []).map((m) => ({
+      "Oy": m.monthName ?? "",
+      "Buyurtmalar soni": m.orderCount,
+      "Daromad (so'm)": m.revenue,
+    }));
+
+    // Sheet 2: All orders
+    const ordersSheet = orders.map((o) => ({
+      "Chek #": o.id,
+      "Sana": fmtDate(o.createdAt),
+      "Mijoz": o.customerName ?? "Mehmon",
+      "Joy": [o.roomName, o.tableNumber ? `Stol ${o.tableNumber}` : ""].filter(Boolean).join(" · ") || "—",
+      "To'lov turi": PAYMENT_LABELS[o.paymentType]?.label ?? o.paymentType,
+      "Holat": STATUS_LABELS[o.status] ?? o.status,
+      "Summa (so'm)": o.totalAmount,
+      "Mahsulotlar": (o.items ?? []).map((i) => `${i.productName} ×${i.quantity}`).join(", "),
+    }));
+
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.json_to_sheet(monthlySheet);
+    const ws2 = XLSX.utils.json_to_sheet(ordersSheet);
+
+    // Column widths for orders sheet
+    ws2["!cols"] = [
+      { wch: 8 }, { wch: 18 }, { wch: 18 }, { wch: 16 },
+      { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 50 },
+    ];
+    ws1["!cols"] = [{ wch: 15 }, { wch: 18 }, { wch: 16 }];
+
+    XLSX.utils.book_append_sheet(wb, ws2, "Sotuvlar");
+    XLSX.utils.book_append_sheet(wb, ws1, `${year} yil oylik`);
+    XLSX.writeFile(wb, `sotuvlar_${year}.xlsx`);
+  };
+
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload?.length) {
       return (
         <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm shadow-xl">
           <p className="text-white font-medium mb-1">{payload[0]?.payload?.fullName}</p>
@@ -103,22 +141,16 @@ export default function AdminReport() {
           <h1 className="text-2xl font-bold text-white">Sotuvlar Hisobot</h1>
           <p className="text-zinc-400 mt-1">Oylik va yillik daromad tahlili</p>
         </div>
-        {/* Year selector */}
-        <div className="flex items-center gap-2 bg-zinc-800 rounded-lg px-2 py-1">
-          <button
-            onClick={() => setYear((y) => y - 1)}
-            className="p-1 text-zinc-400 hover:text-white transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="text-white font-semibold w-12 text-center">{year}</span>
-          <button
-            onClick={() => setYear((y) => Math.min(y + 1, currentYear))}
-            disabled={year >= currentYear}
-            className="p-1 text-zinc-400 hover:text-white transition-colors disabled:opacity-30"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+        <div className="flex items-center gap-3">
+          <Button onClick={exportToExcel} disabled={!data?.allOrders?.length} variant="outline" className="gap-2 border-green-700 text-green-400 hover:bg-green-700/10 hover:text-green-300">
+            <Download className="h-4 w-4" />
+            Excel yuklash
+          </Button>
+          <div className="flex items-center gap-2 bg-zinc-800 rounded-lg px-2 py-1">
+            <button onClick={() => setYear((y) => y - 1)} className="p-1 text-zinc-400 hover:text-white"><ChevronLeft className="h-4 w-4" /></button>
+            <span className="text-white font-semibold w-12 text-center">{year}</span>
+            <button onClick={() => setYear((y) => Math.min(y + 1, currentYear))} disabled={year >= currentYear} className="p-1 text-zinc-400 hover:text-white disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
+          </div>
         </div>
       </div>
 
@@ -130,50 +162,33 @@ export default function AdminReport() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Card className="bg-zinc-950 border-zinc-800">
               <CardContent className="pt-4 pb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-zinc-500">{year} yil daromadi</span>
-                  <TrendingUp className="h-3.5 w-3.5 text-green-500" />
-                </div>
+                <div className="flex items-center justify-between mb-1"><span className="text-xs text-zinc-500">{year} yil daromadi</span><TrendingUp className="h-3.5 w-3.5 text-green-500" /></div>
                 <p className="text-xl font-bold text-green-400">{fmt(data?.totalRevenue ?? 0)}</p>
                 <p className="text-xs text-zinc-600 mt-0.5">so'm</p>
               </CardContent>
             </Card>
             <Card className="bg-zinc-950 border-zinc-800">
               <CardContent className="pt-4 pb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-zinc-500">Jami buyurtmalar</span>
-                  <ShoppingBag className="h-3.5 w-3.5 text-blue-500" />
-                </div>
+                <div className="flex items-center justify-between mb-1"><span className="text-xs text-zinc-500">Jami buyurtmalar</span><ShoppingBag className="h-3.5 w-3.5 text-blue-500" /></div>
                 <p className="text-xl font-bold text-white">{data?.totalOrders ?? 0}</p>
                 <p className="text-xs text-zinc-600 mt-0.5">ta</p>
               </CardContent>
             </Card>
             <Card className="bg-zinc-950 border-zinc-800">
               <CardContent className="pt-4 pb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-zinc-500">O'rtacha chek</span>
-                  <Receipt className="h-3.5 w-3.5 text-purple-500" />
-                </div>
-                <p className="text-xl font-bold text-purple-400">
-                  {fmt((data?.totalOrders ?? 0) > 0 ? (data?.totalRevenue ?? 0) / data!.totalOrders : 0)}
-                </p>
+                <div className="flex items-center justify-between mb-1"><span className="text-xs text-zinc-500">O'rtacha chek</span><Receipt className="h-3.5 w-3.5 text-purple-500" /></div>
+                <p className="text-xl font-bold text-purple-400">{fmt((data?.totalOrders ?? 0) > 0 ? (data?.totalRevenue ?? 0) / data!.totalOrders : 0)}</p>
                 <p className="text-xs text-zinc-600 mt-0.5">so'm</p>
               </CardContent>
             </Card>
             <Card className="bg-zinc-950 border-zinc-800">
               <CardContent className="pt-4 pb-3">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-zinc-500">Eng yaxshi oy</span>
-                  <BarChart3 className="h-3.5 w-3.5 text-orange-500" />
-                </div>
+                <div className="flex items-center justify-between mb-1"><span className="text-xs text-zinc-500">Eng yaxshi oy</span><BarChart3 className="h-3.5 w-3.5 text-orange-500" /></div>
                 {(() => {
                   const best = [...(data?.monthlySales ?? [])].sort((a, b) => b.revenue - a.revenue)[0];
-                  return best && best.revenue > 0 ? (
-                    <>
-                      <p className="text-xl font-bold text-orange-400">{best.monthName}</p>
-                      <p className="text-xs text-zinc-600 mt-0.5">{fmt(best.revenue)} so'm</p>
-                    </>
-                  ) : <p className="text-xl font-bold text-zinc-600">—</p>;
+                  return best && best.revenue > 0
+                    ? <><p className="text-xl font-bold text-orange-400">{best.monthName}</p><p className="text-xs text-zinc-600 mt-0.5">{fmt(best.revenue)} so'm</p></>
+                    : <p className="text-xl font-bold text-zinc-600">—</p>;
                 })()}
               </CardContent>
             </Card>
@@ -184,18 +199,11 @@ export default function AdminReport() {
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm text-zinc-300">{year} yil oylik daromad</CardTitle>
               <div className="flex gap-1">
-                <button
-                  onClick={() => setChartType("bar")}
-                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${chartType === "bar" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"}`}
-                >
-                  Ustunli
-                </button>
-                <button
-                  onClick={() => setChartType("line")}
-                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${chartType === "line" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"}`}
-                >
-                  Chiziqli
-                </button>
+                {(["bar", "line"] as const).map((t) => (
+                  <button key={t} onClick={() => setChartType(t)} className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${chartType === t ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"}`}>
+                    {t === "bar" ? "Ustunli" : "Chiziqli"}
+                  </button>
+                ))}
               </div>
             </CardHeader>
             <CardContent>
@@ -218,8 +226,6 @@ export default function AdminReport() {
                   </LineChart>
                 )}
               </ResponsiveContainer>
-
-              {/* Month minibar */}
               <div className="grid grid-cols-6 md:grid-cols-12 gap-1 mt-3">
                 {(data?.monthlySales ?? []).map((m) => (
                   <div key={m.month} className="text-center">
@@ -235,18 +241,11 @@ export default function AdminReport() {
           <Card className="bg-zinc-950 border-zinc-800">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <CardTitle className="text-sm text-zinc-300">
-                Barcha Sotuvlar
-                <span className="ml-2 text-zinc-600 font-normal">{filteredOrders.length} ta</span>
+                Barcha Sotuvlar <span className="ml-2 text-zinc-600 font-normal">{filteredOrders.length} ta</span>
               </CardTitle>
               <div className="flex gap-1 flex-wrap justify-end">
                 {(["all", "cash", "card", "debt", "transfer"] as const).map((pt) => (
-                  <button
-                    key={pt}
-                    onClick={() => setFilterPayment(pt)}
-                    className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                      filterPayment === pt ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"
-                    }`}
-                  >
+                  <button key={pt} onClick={() => setFilterPayment(pt)} className={`px-2 py-1 rounded text-xs font-medium transition-colors ${filterPayment === pt ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"}`}>
                     {pt === "all" ? "Barchasi" : PAYMENT_LABELS[pt]?.label ?? pt}
                   </button>
                 ))}
@@ -273,34 +272,22 @@ export default function AdminReport() {
                       {filteredOrders.map((o) => {
                         const pm = PAYMENT_LABELS[o.paymentType] ?? { label: o.paymentType, color: "bg-zinc-800 text-zinc-400 border-zinc-700" };
                         return (
-                          <tr
-                            key={o.id}
-                            className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors cursor-pointer"
-                            onClick={() => setSelectedOrder(o)}
-                          >
+                          <tr key={o.id} className="border-b border-zinc-800/50 hover:bg-zinc-900/50 transition-colors cursor-pointer" onClick={() => setSelectedOrder(o)}>
                             <td className="py-3 px-4 text-zinc-500">#{o.id}</td>
                             <td className="py-3 px-4 text-zinc-400 whitespace-nowrap text-xs">{fmtDate(o.createdAt)}</td>
                             <td className="py-3 px-4">
                               <p className="text-zinc-200">{o.customerName ?? "Mehmon"}</p>
-                              {(o.roomName || o.tableNumber) && (
-                                <p className="text-xs text-zinc-600">{o.roomName} {o.tableNumber ? `· Stol ${o.tableNumber}` : ""}</p>
-                              )}
+                              {(o.roomName || o.tableNumber) && <p className="text-xs text-zinc-600">{o.roomName} {o.tableNumber ? `· Stol ${o.tableNumber}` : ""}</p>}
                             </td>
-                            <td className="py-3 px-4">
-                              <Badge variant="outline" className={`text-xs ${pm.color}`}>{pm.label}</Badge>
-                            </td>
+                            <td className="py-3 px-4"><Badge variant="outline" className={`text-xs ${pm.color}`}>{pm.label}</Badge></td>
                             <td className="py-3 px-4">
                               <span className={`text-xs ${o.status === "completed" ? "text-green-400" : o.status === "cancelled" ? "text-red-400" : "text-yellow-400"}`}>
-                                {STATUS_LABELS[o.status] ?? o.status}
+                                {STATUS_LABELS[o.status as string] ?? o.status}
                               </span>
                             </td>
                             <td className="py-3 px-4 text-right font-semibold text-white">{fmtFull(o.totalAmount)}</td>
                             <td className="py-3 px-4 text-center">
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setSelectedOrder(o); }}
-                                className="text-blue-400 hover:text-blue-300 transition-colors"
-                                title="Chekni ko'rish"
-                              >
+                              <button onClick={(e) => { e.stopPropagation(); setSelectedOrder(o); }} className="text-blue-400 hover:text-blue-300 transition-colors" title="Chekni ko'rish">
                                 <Receipt className="h-4 w-4" />
                               </button>
                             </td>
@@ -325,29 +312,16 @@ export default function AdminReport() {
               Sotuv Cheki #{selectedOrder?.id}
             </DialogTitle>
           </DialogHeader>
-
           {selectedOrder && (
             <div className="space-y-4">
-              {/* Receipt header */}
               <div className="bg-zinc-800 rounded-lg p-3 text-sm space-y-1.5">
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Sana:</span>
-                  <span className="text-zinc-200">{fmtDate(selectedOrder.createdAt)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-zinc-400">Mijoz:</span>
-                  <span className="text-zinc-200">{selectedOrder.customerName ?? "Mehmon"}</span>
-                </div>
+                <div className="flex justify-between"><span className="text-zinc-400">Sana:</span><span className="text-zinc-200">{fmtDate(selectedOrder.createdAt)}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-400">Mijoz:</span><span className="text-zinc-200">{selectedOrder.customerName ?? "Mehmon"}</span></div>
                 {(selectedOrder.roomName || selectedOrder.tableNumber) && (
-                  <div className="flex justify-between">
-                    <span className="text-zinc-400">Joy:</span>
-                    <span className="text-zinc-200">
-                      {selectedOrder.roomName} {selectedOrder.tableNumber ? `· Stol ${selectedOrder.tableNumber}` : ""}
-                    </span>
-                  </div>
+                  <div className="flex justify-between"><span className="text-zinc-400">Joy:</span><span className="text-zinc-200">{selectedOrder.roomName} {selectedOrder.tableNumber ? `· Stol ${selectedOrder.tableNumber}` : ""}</span></div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-zinc-400">To'lov turi:</span>
+                  <span className="text-zinc-400">To'lov:</span>
                   <Badge variant="outline" className={`text-xs ${PAYMENT_LABELS[selectedOrder.paymentType]?.color ?? ""}`}>
                     {PAYMENT_LABELS[selectedOrder.paymentType]?.label ?? selectedOrder.paymentType}
                   </Badge>
@@ -355,19 +329,12 @@ export default function AdminReport() {
                 <div className="flex justify-between">
                   <span className="text-zinc-400">Holat:</span>
                   <span className={`text-xs font-medium ${selectedOrder.status === "completed" ? "text-green-400" : selectedOrder.status === "cancelled" ? "text-red-400" : "text-yellow-400"}`}>
-                    {STATUS_LABELS[selectedOrder.status] ?? selectedOrder.status}
+                    {STATUS_LABELS[selectedOrder.status as string] ?? selectedOrder.status}
                   </span>
                 </div>
-                {selectedOrder.notes && (
-                  <div className="flex justify-between">
-                    <span className="text-zinc-400">Izoh:</span>
-                    <span className="text-zinc-300 text-xs max-w-32 text-right">{selectedOrder.notes}</span>
-                  </div>
-                )}
+                {selectedOrder.notes && <div className="flex justify-between"><span className="text-zinc-400">Izoh:</span><span className="text-zinc-300 text-xs max-w-32 text-right">{selectedOrder.notes}</span></div>}
               </div>
-
-              {/* Items */}
-              {selectedOrder.items && selectedOrder.items.length > 0 && (
+              {selectedOrder.items?.length > 0 && (
                 <div>
                   <p className="text-xs text-zinc-500 mb-2 font-medium uppercase tracking-wider">Buyurtmalar</p>
                   <div className="space-y-1">
@@ -383,19 +350,11 @@ export default function AdminReport() {
                   </div>
                 </div>
               )}
-
-              {/* Total */}
               <div className="bg-zinc-800 rounded-lg p-3 flex justify-between items-center">
                 <span className="text-zinc-300 font-medium">JAMI:</span>
                 <span className="text-xl font-bold text-white">{fmtFull(selectedOrder.totalAmount)}</span>
               </div>
-
-              <Button
-                onClick={() => setSelectedOrder(null)}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200"
-              >
-                Yopish
-              </Button>
+              <Button onClick={() => setSelectedOrder(null)} className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200">Yopish</Button>
             </div>
           )}
         </DialogContent>
