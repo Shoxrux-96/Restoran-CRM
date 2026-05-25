@@ -31,6 +31,18 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+/* ── Extended table type with occupation status ── */
+type TableWithStatus = Table & {
+  isOccupied?: boolean;
+  openOrderId?: number | null;
+  openOrderTotal?: number | null;
+};
+type RoomWithStatus = Omit<Room, "tables"> & { tables?: TableWithStatus[] };
+
+function fmt(n: number) {
+  return new Intl.NumberFormat("uz-UZ").format(Math.round(n));
+}
+
 /* ── Helpers ──────────────────────────────────────────────── */
 const emptyRoomForm = { name: "", description: "" };
 const emptyTableForm = { number: "", name: "", capacity: "4", roomId: "" };
@@ -42,9 +54,10 @@ export default function AdminRooms() {
   const qc = useQueryClient();
   const { toast } = useToast();
 
-  const { data: rooms, isLoading } = useListRooms(venueId, {
-    query: { enabled: !!venueId, queryKey: getListRoomsQueryKey(venueId) },
+  const { data: roomsRaw, isLoading } = useListRooms(venueId, {
+    query: { enabled: !!venueId, queryKey: getListRoomsQueryKey(venueId), refetchInterval: 20_000 },
   });
+  const rooms = (roomsRaw ?? []) as RoomWithStatus[];
 
   const createRoom = useCreateRoom();
   const updateRoom = useUpdateRoom();
@@ -139,9 +152,7 @@ export default function AdminRooms() {
   const openCreateTable = (roomId: number | null) => {
     setEditingTable(null);
     setTableParentRoomId(roomId);
-    const usedNumbers = (rooms ?? [])
-      .flatMap((r) => r.tables ?? [])
-      .map((t) => t.number);
+    const usedNumbers = rooms.flatMap((r) => r.tables ?? []).map((t) => t.number);
     const nextNum = usedNumbers.length > 0 ? Math.max(...usedNumbers) + 1 : 1;
     setTableForm({ number: String(nextNum), name: "", capacity: "4", roomId: roomId ? String(roomId) : "" });
     setTableModal(true);
@@ -209,8 +220,9 @@ export default function AdminRooms() {
   };
 
   /* ── Render ── */
-  const allTables = (rooms ?? []).flatMap((r) => r.tables ?? []);
+  const allTables = rooms.flatMap((r) => r.tables ?? []);
   const unassignedTables = allTables.filter((t) => !t.roomId);
+  const occupiedCount = allTables.filter((t) => t.isOccupied).length;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -219,7 +231,10 @@ export default function AdminRooms() {
         <div>
           <h1 className="text-2xl font-bold text-white">Xonalar va Stollar</h1>
           <p className="text-zinc-400 text-sm mt-1">
-            {(rooms ?? []).length} ta xona · {allTables.length} ta stol
+            {rooms.length} ta xona · {allTables.length} ta stol
+            {occupiedCount > 0 && (
+              <span className="ml-2 text-red-400 font-medium">{occupiedCount} ta band</span>
+            )}
           </p>
         </div>
         <div className="flex gap-2">
@@ -238,9 +253,19 @@ export default function AdminRooms() {
         </div>
       </div>
 
+      {/* Legend */}
+      <div className="flex items-center gap-4 text-xs text-zinc-500">
+        <span className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />Bo'sh stol
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse inline-block" />Band (ochiq buyurtma)
+        </span>
+      </div>
+
       {isLoading ? (
         <div className="text-zinc-500 text-center py-16">Yuklanmoqda...</div>
-      ) : (rooms ?? []).length === 0 ? (
+      ) : rooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-zinc-600 border border-dashed border-zinc-800 rounded-2xl">
           <DoorOpen className="h-16 w-16 mb-3 opacity-30" />
           <p className="text-lg font-medium">Xona yo'q</p>
@@ -252,10 +277,10 @@ export default function AdminRooms() {
         </div>
       ) : (
         <div className="space-y-3">
-          {/* Rooms */}
-          {(rooms ?? []).map((room) => {
+          {rooms.map((room) => {
             const isOpen = expanded.has(room.id);
-            const tables = room.tables ?? [];
+            const tables = (room.tables ?? []) as TableWithStatus[];
+            const occupiedInRoom = tables.filter((t) => t.isOccupied).length;
             return (
               <div
                 key={room.id}
@@ -283,6 +308,11 @@ export default function AdminRooms() {
                     >
                       {tables.length} stol
                     </Badge>
+                    {occupiedInRoom > 0 && (
+                      <Badge variant="outline" className="text-xs border-red-700/60 text-red-400 bg-red-900/20">
+                        {occupiedInRoom} band
+                      </Badge>
+                    )}
                     {!room.isActive && (
                       <Badge variant="outline" className="text-xs border-red-800 text-red-400">
                         Nofaol
@@ -356,7 +386,7 @@ export default function AdminRooms() {
                           ))}
                         <button
                           onClick={() => openCreateTable(room.id)}
-                          className="flex flex-col items-center justify-center h-24 rounded-xl border-2 border-dashed border-zinc-700 text-zinc-600 hover:border-blue-600 hover:text-blue-500 transition-colors"
+                          className="flex flex-col items-center justify-center h-28 rounded-xl border-2 border-dashed border-zinc-700 text-zinc-600 hover:border-blue-600 hover:text-blue-500 transition-colors"
                         >
                           <Plus className="h-5 w-5 mb-1" />
                           <span className="text-xs">Qo'shish</span>
@@ -484,7 +514,7 @@ export default function AdminRooms() {
                 className="w-full mt-1.5 bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
               >
                 <option value="">— Xona tanlang (ixtiyoriy) —</option>
-                {(rooms ?? []).map((r) => (
+                {rooms.map((r) => (
                   <option key={r.id} value={String(r.id)}>
                     {r.name}
                   </option>
@@ -517,20 +547,35 @@ function TableCard({
   onDelete,
   onToggle,
 }: {
-  table: Table;
+  table: TableWithStatus;
   onEdit: () => void;
   onDelete: () => void;
   onToggle: () => void;
 }) {
+  const isOccupied = table.isOccupied ?? false;
+
   return (
     <div
-      className={`relative group flex flex-col items-center justify-center h-24 rounded-xl border-2 transition-all ${
-        table.isActive
-          ? "border-zinc-700 bg-zinc-900 hover:border-blue-600/60"
-          : "border-zinc-800 bg-zinc-950 opacity-50"
+      className={`relative group flex flex-col items-center justify-center h-28 rounded-xl border-2 transition-all ${
+        !table.isActive
+          ? "border-zinc-800 bg-zinc-950 opacity-50"
+          : isOccupied
+          ? "border-red-500/60 bg-red-950/20"
+          : "border-zinc-700 bg-zinc-900 hover:border-blue-600/60"
       }`}
     >
-      <span className="text-2xl font-bold text-white">#{table.number}</span>
+      {/* Occupation status dot */}
+      {table.isActive && (
+        <div
+          className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${
+            isOccupied ? "bg-red-500 animate-pulse" : "bg-emerald-500"
+          }`}
+        />
+      )}
+
+      <span className={`text-2xl font-bold ${isOccupied ? "text-red-200" : "text-white"}`}>
+        #{table.number}
+      </span>
       {table.name && (
         <span className="text-xs text-zinc-400 mt-0.5 px-1 truncate max-w-full">{table.name}</span>
       )}
@@ -539,6 +584,11 @@ function TableCard({
           <Users className="h-3 w-3" />
           <span className="text-xs">{table.capacity}</span>
         </div>
+      )}
+      {isOccupied && table.openOrderTotal && (
+        <span className="text-xs text-red-300 font-medium mt-1">
+          {fmt(table.openOrderTotal)} so'm
+        </span>
       )}
 
       {/* Hover actions */}

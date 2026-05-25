@@ -18,18 +18,32 @@ import AdminProducts from "@/pages/admin/products";
 import AdminDebts from "@/pages/admin/debts";
 import AdminRooms from "@/pages/admin/rooms";
 import AdminReport from "@/pages/admin/report";
+import AdminWaiters from "@/pages/admin/waiters";
+
+import WaiterTables from "@/pages/waiter/tables";
+import WaiterOrder from "@/pages/waiter/order";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
 });
 
-function ProtectedRoute({ component: Component, role }: { component: React.ComponentType; role: "owner" | "admin" }) {
+function ProtectedRoute({
+  component: Component,
+  role,
+}: {
+  component: React.ComponentType;
+  role: "owner" | "admin" | "waiter";
+}) {
   const { user, isAuthenticated } = useAuth();
+  const userRole = (user?.role as string) ?? "";
 
   if (!isAuthenticated) return <Redirect to="/login" />;
 
-  if (role && user?.role !== role) {
-    return <Redirect to={user?.role === "owner" ? "/owner/dashboard" : "/admin/dashboard"} />;
+  if (role && userRole !== role) {
+    if (userRole === "owner") return <Redirect to="/owner/dashboard" />;
+    if (userRole === "admin") return <Redirect to="/admin/dashboard" />;
+    if (userRole === "waiter") return <Redirect to="/waiter/tables" />;
+    return <Redirect to="/login" />;
   }
 
   return (
@@ -41,8 +55,12 @@ function ProtectedRoute({ component: Component, role }: { component: React.Compo
 
 function RootRedirect() {
   const { user, isAuthenticated } = useAuth();
+  const userRole = (user?.role as string) ?? "";
   if (!isAuthenticated) return <Redirect to="/login" />;
-  return <Redirect to={user?.role === "owner" ? "/owner/dashboard" : "/admin/dashboard"} />;
+  if (userRole === "owner") return <Redirect to="/owner/dashboard" />;
+  if (userRole === "admin") return <Redirect to="/admin/dashboard" />;
+  if (userRole === "waiter") return <Redirect to="/waiter/tables" />;
+  return <Redirect to="/login" />;
 }
 
 function Router() {
@@ -51,17 +69,24 @@ function Router() {
       <Route path="/" component={RootRedirect} />
       <Route path="/login" component={Login} />
 
+      {/* Owner routes */}
       <Route path="/owner/dashboard" component={() => <ProtectedRoute component={OwnerDashboard} role="owner" />} />
       <Route path="/owner/venues" component={() => <ProtectedRoute component={OwnerVenues} role="owner" />} />
       <Route path="/owner/venues/:id" component={() => <ProtectedRoute component={OwnerVenueDetail} role="owner" />} />
       <Route path="/owner/users" component={() => <ProtectedRoute component={OwnerUsers} role="owner" />} />
 
+      {/* Admin routes */}
       <Route path="/admin/dashboard" component={() => <ProtectedRoute component={AdminDashboard} role="admin" />} />
       <Route path="/admin/pos" component={() => <ProtectedRoute component={AdminPos} role="admin" />} />
       <Route path="/admin/products" component={() => <ProtectedRoute component={AdminProducts} role="admin" />} />
       <Route path="/admin/rooms" component={() => <ProtectedRoute component={AdminRooms} role="admin" />} />
+      <Route path="/admin/waiters" component={() => <ProtectedRoute component={AdminWaiters} role="admin" />} />
       <Route path="/admin/debts" component={() => <ProtectedRoute component={AdminDebts} role="admin" />} />
       <Route path="/admin/report" component={() => <ProtectedRoute component={AdminReport} role="admin" />} />
+
+      {/* Waiter routes */}
+      <Route path="/waiter/tables" component={() => <ProtectedRoute component={WaiterTables} role="waiter" />} />
+      <Route path="/waiter/table/:tableId" component={() => <ProtectedRoute component={WaiterOrder} role="waiter" />} />
 
       <Route component={NotFound} />
     </Switch>

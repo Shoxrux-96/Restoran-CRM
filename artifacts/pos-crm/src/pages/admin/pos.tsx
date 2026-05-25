@@ -5,11 +5,15 @@ import {
   useCreateCustomer,
   useCreateOrder,
   useListRooms,
+  useListOpenOrders,
+  usePayOpenOrder,
   getListCustomersQueryKey,
   getListProductsQueryKey,
   getListRoomsQueryKey,
+  getListOpenOrdersQueryKey,
   type Product,
   type Room,
+  type ActiveOrder,
 } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
@@ -18,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Search, Plus, Minus, Trash2, Printer, CheckCircle, ChevronUp, X,
-  Percent, ShoppingBag, UserPlus, DoorOpen, Table2, Shuffle,
+  Percent, ShoppingBag, UserPlus, DoorOpen, Table2, Shuffle, ClipboardList,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { QRCodeSVG } from "qrcode.react";
@@ -75,6 +79,18 @@ type TableSelection = {
   roomName: string | null;
   tableId: number | null;
   tableNumber: number | null;
+};
+
+type TableWithStatus = {
+  id: number;
+  number: number;
+  name?: string | null;
+  capacity?: number | null;
+  isActive: boolean;
+  roomId?: number | null;
+  isOccupied?: boolean;
+  openOrderId?: number | null;
+  openOrderTotal?: number | null;
 };
 
 function itemTotal(item: CartItem) {
@@ -146,7 +162,6 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-xs w-full">
-        {/* Modal header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
           <div className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
@@ -157,20 +172,12 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
           </button>
         </div>
 
-        {/* Receipt content (printable) */}
         <div className="overflow-y-auto max-h-[72vh] p-3 bg-gray-50">
           <div
             ref={receiptRef}
             className="bg-white mx-auto p-3 shadow-inner"
-            style={{
-              fontFamily: "'Courier New', monospace",
-              fontSize: "11px",
-              width: "220px",
-              color: "#000",
-              lineHeight: "1.45",
-            }}
+            style={{ fontFamily: "'Courier New', monospace", fontSize: "11px", width: "220px", color: "#000", lineHeight: "1.45" }}
           >
-            {/* ── Header ── */}
             <div style={{ textAlign: "center", marginBottom: "2px" }}>
               <div style={{ fontWeight: "bold", fontSize: "14px", letterSpacing: "1px" }}>
                 {data.venueName.toUpperCase()}
@@ -178,8 +185,6 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
               <div style={{ fontSize: "9px", color: "#555" }}>Savdo cheki / Товарный чек</div>
             </div>
             <Solid />
-
-            {/* ── Chek ma'lumotlari ── */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px" }}>
               <span>CHEK: <b>#{checkNum}</b></span>
               <span>{dateStr}</span>
@@ -193,15 +198,11 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
               </div>
             )}
             <Dash />
-
-            {/* ── Items header ── */}
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px", color: "#555" }}>
               <span style={{ flex: 1 }}>MAHSULOT</span>
               <span style={{ width: "70px", textAlign: "right" }}>SUMMA</span>
             </div>
             <Dash />
-
-            {/* ── Items ── */}
             {data.items.map((item, i) => {
               const lineTotal = itemTotal(item);
               return (
@@ -220,8 +221,6 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
               );
             })}
             <Dash />
-
-            {/* ── Totals ── */}
             {data.totalDiscount > 0 && (
               <>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px" }}>
@@ -240,8 +239,6 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
               <span>{fmt(data.total)} so'm</span>
             </div>
             <Dbl />
-
-            {/* ── To'lov ── */}
             {data.payType === "aralash" && data.splitPayment ? (
               <div style={{ fontSize: "9px", marginTop: "2px" }}>
                 <div style={{ fontWeight: "bold", marginBottom: "1px" }}>To'lov:</div>
@@ -264,24 +261,15 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
             ) : (
               <div style={{ display: "flex", justifyContent: "space-between", fontSize: "9px" }}>
                 <span>To'lov turi:</span>
-                <span style={{ fontWeight: "bold" }}>
-                  {payLabel(data.payType)}
-                </span>
+                <span style={{ fontWeight: "bold" }}>{payLabel(data.payType)}</span>
               </div>
             )}
-
             <Dash />
-
-            {/* ── QR Code ── */}
             <div style={{ display: "flex", justifyContent: "center", margin: "4px 0" }}>
               <QRCodeSVG value={qrData} size={72} level="M" />
             </div>
-            <div style={{ textAlign: "center", fontSize: "8px", color: "#555" }}>
-              Chekni skaner qiling
-            </div>
-
+            <div style={{ textAlign: "center", fontSize: "8px", color: "#555" }}>Chekni skaner qiling</div>
             <Solid />
-            {/* ── Footer ── */}
             <div style={{ textAlign: "center", fontSize: "9px", marginTop: "3px" }}>
               <div style={{ fontWeight: "bold" }}>✦ XARID UCHUN RAHMAT ✦</div>
               <div style={{ fontSize: "8px", color: "#777", marginTop: "2px" }}>
@@ -291,7 +279,6 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
           </div>
         </div>
 
-        {/* Buttons */}
         <div className="flex gap-2 p-3 border-t border-gray-200">
           <Button onClick={handlePrint} className="flex-1 bg-blue-600 hover:bg-blue-700 text-sm gap-1.5">
             <Printer className="h-3.5 w-3.5" />
@@ -308,12 +295,7 @@ function ThermalReceipt({ data, onClose }: { data: ReceiptData; onClose: () => v
 
 /* ── Split Payment Panel ─────────────────────────────────── */
 function SplitPaymentPanel({
-  total,
-  customers,
-  venueId,
-  onConfirm,
-  onCancel,
-  qc,
+  total, customers, venueId, onConfirm, onCancel, qc,
 }: {
   total: number;
   customers: { id: number; name: string; phone?: string | null }[];
@@ -389,14 +371,10 @@ function SplitPaymentPanel({
           </div>
           <button onClick={onCancel} className="text-zinc-500 hover:text-white"><X className="h-5 w-5" /></button>
         </div>
-
-        {/* Total */}
         <div className="bg-zinc-800 rounded-xl p-3 flex justify-between items-center mb-4">
           <span className="text-zinc-400 text-sm">To'lov summasi:</span>
           <span className="text-xl font-bold text-white">{fmt(total)} so'm</span>
         </div>
-
-        {/* Amount inputs */}
         <div className="space-y-3 mb-4">
           {[
             { key: "cash" as const, label: "💵 Naqd pul", color: "text-green-400", val: cashAmt, set: setCashAmt },
@@ -405,32 +383,17 @@ function SplitPaymentPanel({
           ].map(({ key, label, color, val, set }) => (
             <div key={key} className="flex items-center gap-3">
               <span className={`text-sm font-medium w-28 shrink-0 ${color}`}>{label}</span>
-              <Input
-                type="number"
-                value={val}
-                onChange={(e) => set(e.target.value)}
-                className="bg-zinc-800 border-zinc-700 text-white"
-                placeholder="0"
-              />
-              <button
-                onClick={() => set(String(Math.round(autoBalance(key, 0))))}
-                className="text-xs text-zinc-500 hover:text-zinc-300 shrink-0 whitespace-nowrap"
-              >
+              <Input type="number" value={val} onChange={(e) => set(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" placeholder="0" />
+              <button onClick={() => set(String(Math.round(autoBalance(key, 0))))} className="text-xs text-zinc-500 hover:text-zinc-300 shrink-0 whitespace-nowrap">
                 Avto
               </button>
             </div>
           ))}
         </div>
-
-        {/* Balance indicator */}
-        <div className={`flex justify-between text-sm p-2 rounded-lg mb-4 ${
-          Math.abs(remaining) < 1 ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400"
-        }`}>
+        <div className={`flex justify-between text-sm p-2 rounded-lg mb-4 ${Math.abs(remaining) < 1 ? "bg-green-900/30 text-green-400" : "bg-red-900/30 text-red-400"}`}>
           <span>{Math.abs(remaining) < 1 ? "✓ Balans to'g'ri" : "Farq:"}</span>
           {Math.abs(remaining) >= 1 && <span>{remaining > 0 ? `+${fmt(remaining)}` : fmt(remaining)} so'm</span>}
         </div>
-
-        {/* Debt customer selection */}
         {hasDebt && (
           <div className="border border-red-900/50 rounded-xl p-3 mb-4 space-y-3">
             <p className="text-sm text-red-400 font-medium">Qarz uchun mijoz tanlang ({fmt(debt)} so'm)</p>
@@ -451,7 +414,6 @@ function SplitPaymentPanel({
             )}
           </div>
         )}
-
         <Button
           onClick={handleConfirm}
           disabled={Math.abs(cash + card + debt - total) > 1 || createCustomer.isPending}
@@ -555,12 +517,17 @@ export default function AdminPos() {
   const { data: products } = useListProducts(venueId, { query: { enabled: !!venueId, queryKey: getListProductsQueryKey(venueId) } });
   const { data: customers } = useListCustomers(venueId, { query: { enabled: !!venueId, queryKey: getListCustomersQueryKey(venueId) } });
   const { data: rooms } = useListRooms(venueId, { query: { enabled: !!venueId, queryKey: getListRoomsQueryKey(venueId) } });
+  const { data: openOrders, refetch: refetchOpenOrders } = useListOpenOrders(venueId, {
+    query: { enabled: !!venueId, refetchInterval: 15_000, queryKey: getListOpenOrdersQueryKey(venueId) },
+  });
   const createOrder = useCreateOrder();
+  const payOpenOrder = usePayOpenOrder();
   const qc = useQueryClient();
   const { toast } = useToast();
 
   const [search, setSearch] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [activeOpenOrderId, setActiveOpenOrderId] = useState<number | null>(null);
   const [showDebtPanel, setShowDebtPanel] = useState(false);
   const [showSplitPanel, setShowSplitPanel] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptData | null>(null);
@@ -575,6 +542,38 @@ export default function AdminPos() {
   const subtotal = cart.reduce((s, i) => s + i.product.price * i.quantity, 0);
   const totalDiscount = cart.reduce((s, i) => s + (i.product.price * i.quantity * i.discount) / 100, 0);
   const total = subtotal - totalDiscount;
+
+  /* Load open order items into cart */
+  const loadOpenOrder = (order: ActiveOrder) => {
+    if (!products) return;
+    const newCart: CartItem[] = order.items
+      .map((item) => {
+        const product = products.find((p) => p.id === item.productId);
+        if (!product) return null;
+        return {
+          product,
+          quantity: item.quantity,
+          discount: item.discountPct ?? 0,
+          unit: "dona",
+        };
+      })
+      .filter(Boolean) as CartItem[];
+    setCart(newCart);
+    setActiveOpenOrderId(order.id);
+    toast({ title: `Stol #${order.tableNumber ?? ""} buyurtmasi yuklandi` });
+  };
+
+  /* When a table is selected, check if it has an open order and auto-load */
+  const handleTableSelect = (sel: TableSelection) => {
+    setTableSelection(sel);
+    setShowTablePanel(false);
+    if (sel.tableId && openOrders) {
+      const existingOrder = openOrders.find((o) => o.tableId === sel.tableId);
+      if (existingOrder && products) {
+        loadOpenOrder(existingOrder);
+      }
+    }
+  };
 
   const addProduct = (product: Product) => {
     setCart((prev) => {
@@ -593,8 +592,10 @@ export default function AdminPos() {
 
   const clearCart = () => {
     setCart([]);
+    setActiveOpenOrderId(null);
     setTableSelection({ roomId: null, roomName: null, tableId: null, tableNumber: null });
-    qc.invalidateQueries();
+    qc.invalidateQueries({ queryKey: getListRoomsQueryKey(venueId) });
+    qc.invalidateQueries({ queryKey: getListOpenOrdersQueryKey(venueId) });
   };
 
   const placeOrder = (opts: {
@@ -613,6 +614,51 @@ export default function AdminPos() {
         }
       : undefined;
 
+    const onSuccess = (order: { id: number }) => {
+      setReceipt({
+        orderId: order.id,
+        venueName: user?.venueName ?? "Kafe",
+        items: [...cart],
+        subtotal, totalDiscount, total,
+        payType: opts.payType,
+        splitPayment: opts.splitPayment,
+        customerName: opts.customerName,
+        tableNumber: tableSelection.tableNumber ?? undefined,
+        roomName: tableSelection.roomName ?? undefined,
+        date: new Date(),
+      });
+      clearCart();
+      setShowDebtPanel(false);
+      setShowSplitPanel(false);
+    };
+
+    /* If there's an active open order, close it via the open orders endpoint */
+    if (activeOpenOrderId) {
+      payOpenOrder.mutate(
+        {
+          venueId,
+          orderId: activeOpenOrderId,
+          data: {
+            paymentType: opts.apiPayType,
+            paymentSplit: apiSplit,
+            customerId: opts.customerId ?? null,
+            notes: opts.notes,
+            items: cart.map((i) => ({
+              productId: i.product.id,
+              quantity: i.quantity,
+              discountPct: i.discount,
+            })),
+          },
+        },
+        {
+          onSuccess,
+          onError: () => toast({ title: "Xatolik yuz berdi", variant: "destructive" }),
+        }
+      );
+      return;
+    }
+
+    /* Otherwise create a new order */
     createOrder.mutate(
       {
         venueId,
@@ -629,23 +675,7 @@ export default function AdminPos() {
         },
       },
       {
-        onSuccess: (order) => {
-          setReceipt({
-            orderId: order.id,
-            venueName: user?.venueName ?? "Kafe",
-            items: [...cart],
-            subtotal, totalDiscount, total,
-            payType: opts.payType,
-            splitPayment: opts.splitPayment,
-            customerName: opts.customerName,
-            tableNumber: tableSelection.tableNumber ?? undefined,
-            roomName: tableSelection.roomName ?? undefined,
-            date: new Date(),
-          });
-          clearCart();
-          setShowDebtPanel(false);
-          setShowSplitPanel(false);
-        },
+        onSuccess,
         onError: () => toast({ title: "Xatolik yuz berdi", variant: "destructive" }),
       }
     );
@@ -662,7 +692,6 @@ export default function AdminPos() {
   };
 
   const handleSplitConfirm = (split: SplitPayment, customer?: { id?: number; name: string; phone?: string }) => {
-    // Determine primary payment type
     const dominantType = split.debt >= split.cash && split.debt >= split.card
       ? "debt" : split.card >= split.cash ? "card" : "cash";
     const apiType = dominantType === "debt" ? "debt" : dominantType === "card" ? "card" : "cash";
@@ -678,7 +707,7 @@ export default function AdminPos() {
     });
   };
 
-  const categoryGroups = [...new Set(availableProducts.map((p) => p.category))];
+  const isPaying = createOrder.isPending || payOpenOrder.isPending;
 
   return (
     <div className="flex flex-col h-[calc(100vh-112px)] gap-0 overflow-hidden -m-6 md:-m-8">
@@ -686,6 +715,12 @@ export default function AdminPos() {
       <div className="bg-zinc-950 border-b border-zinc-800 px-4 py-3 flex items-center gap-3">
         <ShoppingBag className="h-5 w-5 text-blue-500 shrink-0" />
         <h1 className="text-white font-bold text-lg">Sotuv Kassa</h1>
+        {/* Active open order badge */}
+        {activeOpenOrderId && (
+          <span className="text-xs bg-red-900/50 text-red-300 border border-red-700 px-2 py-0.5 rounded-full font-medium">
+            Ochiq buyurtma #{activeOpenOrderId}
+          </span>
+        )}
         <button
           onClick={() => setShowTablePanel(true)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ml-2 ${
@@ -699,7 +734,14 @@ export default function AdminPos() {
             ? `${tableSelection.roomName ? `${tableSelection.roomName} · ` : ""}Stol #${tableSelection.tableNumber}`
             : "Stol tanlash"}
           {tableSelection.tableNumber && (
-            <button onClick={(e) => { e.stopPropagation(); setTableSelection({ roomId: null, roomName: null, tableId: null, tableNumber: null }); }} className="ml-1 text-zinc-400 hover:text-white">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setTableSelection({ roomId: null, roomName: null, tableId: null, tableNumber: null });
+                setActiveOpenOrderId(null);
+              }}
+              className="ml-1 text-zinc-400 hover:text-white"
+            >
               <X className="h-3 w-3" />
             </button>
           )}
@@ -723,7 +765,11 @@ export default function AdminPos() {
                 className="pl-9 bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-base"
                 autoComplete="off"
               />
-              {search && <button onClick={() => { setSearch(""); setShowSuggestions(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"><X className="h-4 w-4" /></button>}
+              {search && (
+                <button onClick={() => { setSearch(""); setShowSuggestions(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
             {showSuggestions && suggestions.length > 0 && (
               <div className="absolute left-4 right-4 top-full mt-1 z-30 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden">
@@ -761,7 +807,6 @@ export default function AdminPos() {
                     <div key={item.product.id} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-start gap-2">
-                          {/* Product thumbnail */}
                           {(item.product as any).imageUrl ? (
                             <img src={(item.product as any).imageUrl} alt="" className="w-9 h-9 rounded-lg object-cover shrink-0 mt-0.5" />
                           ) : (
@@ -775,13 +820,19 @@ export default function AdminPos() {
                             <span className="text-xs text-zinc-500 ml-2">{item.product.category}</span>
                           </div>
                         </div>
-                        <button onClick={() => removeItem(item.product.id)} className="text-red-500 hover:bg-red-500/10 rounded p-1 ml-2"><Trash2 className="h-4 w-4" /></button>
+                        <button onClick={() => removeItem(item.product.id)} className="text-red-500 hover:bg-red-500/10 rounded p-1 ml-2">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         <div className="flex items-center bg-zinc-800 rounded-lg overflow-hidden">
-                          <button onClick={() => updateItem(item.product.id, { quantity: Math.max(1, item.quantity - 1) })} className="px-2 py-1.5 text-zinc-300 hover:bg-zinc-700"><Minus className="h-3.5 w-3.5" /></button>
+                          <button onClick={() => updateItem(item.product.id, { quantity: Math.max(1, item.quantity - 1) })} className="px-2 py-1.5 text-zinc-300 hover:bg-zinc-700">
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
                           <input type="number" value={item.quantity} onChange={(e) => updateItem(item.product.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })} className="w-10 text-center bg-transparent text-white text-sm font-semibold focus:outline-none" />
-                          <button onClick={() => updateItem(item.product.id, { quantity: item.quantity + 1 })} className="px-2 py-1.5 text-zinc-300 hover:bg-zinc-700"><Plus className="h-3.5 w-3.5" /></button>
+                          <button onClick={() => updateItem(item.product.id, { quantity: item.quantity + 1 })} className="px-2 py-1.5 text-zinc-300 hover:bg-zinc-700">
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
                         </div>
                         <select value={item.unit} onChange={(e) => updateItem(item.product.id, { unit: e.target.value as Unit })} className="bg-zinc-800 border-none text-zinc-300 text-sm rounded-lg px-2 py-1.5 focus:outline-none">
                           {UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
@@ -804,8 +855,8 @@ export default function AdminPos() {
           </div>
         </div>
 
-        {/* Right: Summary + Payment */}
-        <div className="w-72 flex flex-col bg-zinc-950 border-l border-zinc-800">
+        {/* Right: Summary + Payment + Open Orders */}
+        <div className="w-72 flex flex-col bg-zinc-950 border-l border-zinc-800 overflow-hidden">
           {/* Totals */}
           <div className="p-4 border-b border-zinc-800 space-y-2">
             <div className="flex justify-between text-sm text-zinc-400">
@@ -829,43 +880,117 @@ export default function AdminPos() {
           </div>
 
           {/* Payment buttons */}
-          <div className="p-4 space-y-2.5 flex-1 flex flex-col justify-between">
-            <div className="space-y-2.5">
-              <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">To'lov turi</p>
-              <button
-                onClick={() => { if (!cart.length) return; placeOrder({ payType: "naxt", apiPayType: "cash" }); }}
-                disabled={!cart.length || createOrder.isPending}
-                className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-green-600 hover:bg-green-500 text-white shadow-lg shadow-green-900/30" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
-              >
-                💵 Naqd Pul
-              </button>
-              <button
-                onClick={() => { if (!cart.length) return; placeOrder({ payType: "karta", apiPayType: "card" }); }}
-                disabled={!cart.length || createOrder.isPending}
-                className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/30" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
-              >
-                💳 Karta
-              </button>
-              <button
-                onClick={() => { if (!cart.length) return; setShowDebtPanel(true); }}
-                disabled={!cart.length || createOrder.isPending}
-                className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/30" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
-              >
-                📝 Qarzga
-              </button>
-              <button
-                onClick={() => { if (!cart.length) return; setShowSplitPanel(true); }}
-                disabled={!cart.length || createOrder.isPending}
-                className={`w-full py-3.5 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-900/30" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
-              >
-                🔀 Aralash
-              </button>
-            </div>
+          <div className="p-4 space-y-2.5 border-b border-zinc-800">
+            <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">To'lov turi</p>
+            <button
+              onClick={() => { if (!cart.length) return; placeOrder({ payType: "naxt", apiPayType: "cash" }); }}
+              disabled={!cart.length || isPaying}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-green-600 hover:bg-green-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+            >
+              💵 Naqd Pul
+            </button>
+            <button
+              onClick={() => { if (!cart.length) return; placeOrder({ payType: "karta", apiPayType: "card" }); }}
+              disabled={!cart.length || isPaying}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+            >
+              💳 Karta
+            </button>
+            <button
+              onClick={() => { if (!cart.length) return; setShowDebtPanel(true); }}
+              disabled={!cart.length || isPaying}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-red-600 hover:bg-red-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+            >
+              📝 Qarzga
+            </button>
+            <button
+              onClick={() => { if (!cart.length) return; setShowSplitPanel(true); }}
+              disabled={!cart.length || isPaying}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+            >
+              🔀 Aralash
+            </button>
             {cart.length > 0 && (
               <button onClick={clearCart} className="w-full py-2 text-sm text-zinc-600 hover:text-red-400 transition-colors">
                 Savatni tozalash
               </button>
             )}
+          </div>
+
+          {/* Open Orders Section — "Ochiq Buyurtmalar" */}
+          <div className="flex-1 overflow-y-auto">
+            <div className="px-4 pt-3 pb-1 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <ClipboardList className="h-4 w-4 text-zinc-500" />
+                <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Ochiq Buyurtmalar</span>
+                {(openOrders ?? []).length > 0 && (
+                  <span className="bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 font-bold leading-none">
+                    {(openOrders ?? []).length}
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => refetchOpenOrders()}
+                className="text-xs text-zinc-600 hover:text-zinc-300 transition-colors"
+              >
+                ↺
+              </button>
+            </div>
+
+            <div className="px-3 pb-3 space-y-2 mt-1">
+              {(openOrders ?? []).length === 0 ? (
+                <p className="text-xs text-zinc-700 text-center py-3">Ochiq buyurtma yo'q</p>
+              ) : (
+                (openOrders ?? []).map((order) => (
+                  <div
+                    key={order.id}
+                    className={`rounded-xl border p-3 transition-all ${
+                      activeOpenOrderId === order.id
+                        ? "border-blue-500 bg-blue-600/10"
+                        : "border-zinc-800 bg-zinc-900 hover:border-zinc-700"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between mb-1.5">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <Table2 className="h-3.5 w-3.5 text-zinc-400" />
+                          <span className="text-sm font-semibold text-white">
+                            Stol #{order.tableNumber ?? "?"}
+                          </span>
+                        </div>
+                        {order.roomName && (
+                          <p className="text-xs text-zinc-500 mt-0.5">{order.roomName}</p>
+                        )}
+                        {order.waiterName && (
+                          <p className="text-xs text-zinc-600">{order.waiterName}</p>
+                        )}
+                      </div>
+                      <span className="text-sm font-bold text-white whitespace-nowrap">
+                        {fmt(order.totalAmount)} so'm
+                      </span>
+                    </div>
+
+                    <div className="text-xs text-zinc-600 mb-2">
+                      {order.items.length} mahsulot
+                      {order.items.slice(0, 2).map((i) => ` · ${i.productName} ×${i.quantity}`).join("")}
+                      {order.items.length > 2 && ` +${order.items.length - 2}`}
+                    </div>
+
+                    <button
+                      onClick={() => loadOpenOrder(order)}
+                      disabled={!products}
+                      className={`w-full py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                        activeOpenOrderId === order.id
+                          ? "bg-blue-600 text-white hover:bg-blue-500"
+                          : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                      }`}
+                    >
+                      {activeOpenOrderId === order.id ? "✓ Yuklandi" : "Yuklash"}
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -876,8 +1001,9 @@ export default function AdminPos() {
       {showTablePanel && (
         <TableSelectionPanel
           rooms={rooms ?? []}
+          openOrders={openOrders ?? []}
           current={tableSelection}
-          onSelect={(sel) => { setTableSelection(sel); setShowTablePanel(false); }}
+          onSelect={handleTableSelect}
           onCancel={() => setShowTablePanel(false)}
         />
       )}
@@ -886,8 +1012,11 @@ export default function AdminPos() {
 }
 
 /* ── Table Selection Panel ────────────────────────────────── */
-function TableSelectionPanel({ rooms, current, onSelect, onCancel }: {
+function TableSelectionPanel({
+  rooms, openOrders, current, onSelect, onCancel,
+}: {
   rooms: Room[];
+  openOrders: ActiveOrder[];
   current: TableSelection;
   onSelect: (sel: TableSelection) => void;
   onCancel: () => void;
@@ -899,21 +1028,43 @@ function TableSelectionPanel({ rooms, current, onSelect, onCancel }: {
     ? allTables.filter((t) => t.roomId === selectedRoomId && t.isActive)
     : allTables.filter((t) => t.isActive);
 
+  const occupiedTableIds = new Set(openOrders.map((o) => o.tableId).filter((id): id is number => id !== null));
+
   return (
     <div className="fixed inset-0 z-40 flex flex-col justify-end" onClick={onCancel}>
-      <div className="bg-zinc-900 border-t border-zinc-700 rounded-t-2xl shadow-2xl max-w-2xl mx-auto w-full max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()} style={{ animation: "slideUp 0.25s ease-out" }}>
+      <div
+        className="bg-zinc-900 border-t border-zinc-700 rounded-t-2xl shadow-2xl max-w-2xl mx-auto w-full max-h-[80vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+        style={{ animation: "slideUp 0.25s ease-out" }}
+      >
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
-          <div className="flex items-center gap-2"><Table2 className="h-5 w-5 text-blue-400" /><h3 className="text-lg font-bold text-white">Xona va Stol tanlash</h3></div>
-          <button onClick={onCancel} className="text-zinc-500 hover:text-white"><X className="h-5 w-5" /></button>
+          <div className="flex items-center gap-2">
+            <Table2 className="h-5 w-5 text-blue-400" />
+            <h3 className="text-lg font-bold text-white">Xona va Stol tanlash</h3>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs text-zinc-500">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />Bo'sh</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />Band</span>
+            </div>
+            <button onClick={onCancel} className="text-zinc-500 hover:text-white"><X className="h-5 w-5" /></button>
+          </div>
         </div>
         <div className="flex flex-1 overflow-hidden">
           {activeRooms.length > 0 && (
             <div className="w-48 border-r border-zinc-800 overflow-y-auto py-2 shrink-0">
-              <button onClick={() => setSelectedRoomId(null)} className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === null ? "bg-blue-600/10 text-blue-400 font-medium" : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`}>
+              <button
+                onClick={() => setSelectedRoomId(null)}
+                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === null ? "bg-blue-600/10 text-blue-400 font-medium" : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`}
+              >
                 <Table2 className="h-4 w-4 shrink-0" />Barcha stollar
               </button>
               {activeRooms.map((r) => (
-                <button key={r.id} onClick={() => setSelectedRoomId(r.id)} className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === r.id ? "bg-blue-600/10 text-blue-400 font-medium" : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`}>
+                <button
+                  key={r.id}
+                  onClick={() => setSelectedRoomId(r.id)}
+                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === r.id ? "bg-blue-600/10 text-blue-400 font-medium" : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`}
+                >
                   <DoorOpen className="h-4 w-4 shrink-0" />{r.name}
                   <span className="ml-auto text-xs text-zinc-600">{(r.tables ?? []).filter((t) => t.isActive).length}</span>
                 </button>
@@ -922,18 +1073,36 @@ function TableSelectionPanel({ rooms, current, onSelect, onCancel }: {
           )}
           <div className="flex-1 overflow-y-auto p-4">
             {filteredTables.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-zinc-600"><Table2 className="h-8 w-8 mb-2 opacity-30" /><p className="text-sm">Stol topilmadi</p></div>
+              <div className="flex flex-col items-center justify-center h-32 text-zinc-600">
+                <Table2 className="h-8 w-8 mb-2 opacity-30" />
+                <p className="text-sm">Stol topilmadi</p>
+              </div>
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                 {filteredTables.sort((a, b) => a.number - b.number).map((table) => {
                   const isSelected = current.tableId === table.id;
+                  const isOccupied = occupiedTableIds.has(table.id);
                   const roomName = rooms.find((r) => r.id === table.roomId)?.name ?? null;
                   return (
-                    <button key={table.id} onClick={() => onSelect({ roomId: table.roomId ?? null, roomName, tableId: table.id, tableNumber: table.number })}
-                      className={`flex flex-col items-center justify-center h-20 rounded-xl border-2 transition-all ${isSelected ? "border-blue-500 bg-blue-600/20 text-blue-400" : "border-zinc-700 bg-zinc-800 text-white hover:border-blue-600/50 hover:bg-zinc-700"}`}>
+                    <button
+                      key={table.id}
+                      onClick={() => onSelect({ roomId: table.roomId ?? null, roomName, tableId: table.id, tableNumber: table.number })}
+                      className={`relative flex flex-col items-center justify-center h-20 rounded-xl border-2 transition-all ${
+                        isSelected
+                          ? "border-blue-500 bg-blue-600/20 text-blue-400"
+                          : isOccupied
+                          ? "border-red-600/60 bg-red-950/30 text-red-200 hover:border-red-500"
+                          : "border-zinc-700 bg-zinc-800 text-white hover:border-blue-600/50 hover:bg-zinc-700"
+                      }`}
+                    >
+                      {/* Status dot */}
+                      <div className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full ${isOccupied ? "bg-red-500" : "bg-emerald-500"}`} />
                       <span className="text-xl font-bold">#{table.number}</span>
-                      {table.name && <span className="text-xs text-zinc-400 truncate px-1 max-w-full">{table.name}</span>}
-                      {!selectedRoomId && roomName && <span className="text-xs text-zinc-500 truncate px-1 max-w-full">{roomName}</span>}
+                      {table.name && <span className="text-xs truncate px-1 max-w-full opacity-60">{table.name}</span>}
+                      {!selectedRoomId && roomName && <span className="text-xs truncate px-1 max-w-full opacity-50">{roomName}</span>}
+                      {isOccupied && (
+                        <span className="text-xs text-red-400 font-medium mt-0.5">Band</span>
+                      )}
                     </button>
                   );
                 })}
@@ -943,7 +1112,10 @@ function TableSelectionPanel({ rooms, current, onSelect, onCancel }: {
         </div>
         {current.tableNumber && (
           <div className="px-5 py-3 border-t border-zinc-800">
-            <button onClick={() => onSelect({ roomId: null, roomName: null, tableId: null, tableNumber: null })} className="w-full py-2 text-sm text-zinc-500 hover:text-red-400 transition-colors">
+            <button
+              onClick={() => onSelect({ roomId: null, roomName: null, tableId: null, tableNumber: null })}
+              className="w-full py-2 text-sm text-zinc-500 hover:text-red-400 transition-colors"
+            >
               Stol tanlovini bekor qilish
             </button>
           </div>

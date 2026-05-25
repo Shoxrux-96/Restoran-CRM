@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { db, roomsTable, tablesTable } from "@workspace/db";
+import { db, roomsTable, tablesTable, ordersTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { requireAuth } from "../lib/auth";
 
@@ -26,6 +26,19 @@ router.get("/venues/:venueId/rooms", requireAuth, async (req, res): Promise<void
     .where(eq(tablesTable.venueId, venueId))
     .orderBy(tablesTable.number);
 
+  /* Find occupied tables from open orders */
+  const openOrders = await db
+    .select({ tableId: ordersTable.tableId, id: ordersTable.id, totalAmount: ordersTable.totalAmount })
+    .from(ordersTable)
+    .where(and(eq(ordersTable.venueId, venueId), eq(ordersTable.status, "open")));
+
+  const occupiedMap = new Map<number, { orderId: number; totalAmount: number }>();
+  for (const o of openOrders) {
+    if (o.tableId !== null) {
+      occupiedMap.set(o.tableId, { orderId: o.id, totalAmount: parseFloat(o.totalAmount) });
+    }
+  }
+
   res.json(
     rooms.map((r) => ({
       id: r.id,
@@ -36,16 +49,22 @@ router.get("/venues/:venueId/rooms", requireAuth, async (req, res): Promise<void
       createdAt: r.createdAt.toISOString(),
       tables: tables
         .filter((t) => t.roomId === r.id)
-        .map((t) => ({
-          id: t.id,
-          venueId: t.venueId,
-          roomId: t.roomId,
-          number: t.number,
-          name: t.name,
-          capacity: t.capacity,
-          isActive: t.isActive,
-          createdAt: t.createdAt.toISOString(),
-        })),
+        .map((t) => {
+          const occ = occupiedMap.get(t.id);
+          return {
+            id: t.id,
+            venueId: t.venueId,
+            roomId: t.roomId,
+            number: t.number,
+            name: t.name,
+            capacity: t.capacity,
+            isActive: t.isActive,
+            createdAt: t.createdAt.toISOString(),
+            isOccupied: !!occ,
+            openOrderId: occ?.orderId ?? null,
+            openOrderTotal: occ?.totalAmount ?? null,
+          };
+        }),
     }))
   );
 });
@@ -118,6 +137,9 @@ router.patch("/venues/:venueId/rooms/:id", requireAuth, async (req, res): Promis
       capacity: t.capacity,
       isActive: t.isActive,
       createdAt: t.createdAt.toISOString(),
+      isOccupied: false,
+      openOrderId: null,
+      openOrderTotal: null,
     })),
   });
 });

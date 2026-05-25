@@ -7,6 +7,8 @@ import customersRouter from "./customers";
 import ordersRouter from "./orders";
 import debtsRouter from "./debts";
 import roomsRouter from "./rooms";
+import openOrdersRouter from "./open-orders";
+import waitersRouter from "./waiters";
 
 const router: IRouter = Router();
 
@@ -18,5 +20,7 @@ router.use(customersRouter);
 router.use(ordersRouter);
 router.use(debtsRouter);
 router.use(roomsRouter);
+router.use(openOrdersRouter);
+router.use(waitersRouter);
 
 export default router;
