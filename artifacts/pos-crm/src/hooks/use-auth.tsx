@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, createContext, useContext } from "react";
 import { type User, setAuthTokenGetter } from "@workspace/api-client-react";
 
 type AuthState = {
@@ -13,6 +13,21 @@ type AuthContextType = AuthState & {
 };
 
 const AUTH_KEY = "restoCrm_auth";
+
+// Set up the token getter synchronously at module load time so it is
+// available before the first TanStack Query fetch fires (microtasks run
+// before useEffect, so an effect-based setup would be too late).
+setAuthTokenGetter(() => {
+  try {
+    const stored = localStorage.getItem(AUTH_KEY);
+    if (stored) {
+      return JSON.parse(stored).token ?? null;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+});
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -31,20 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     return { user: null, token: null };
   });
-
-  useEffect(() => {
-    setAuthTokenGetter(() => {
-      try {
-        const stored = localStorage.getItem(AUTH_KEY);
-        if (stored) {
-          return JSON.parse(stored).token;
-        }
-      } catch (e) {
-        return null;
-      }
-      return null;
-    });
-  }, []);
 
   const login = (user: User, token: string) => {
     const state = { user, token };
