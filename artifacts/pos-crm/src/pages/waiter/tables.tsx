@@ -68,8 +68,8 @@ export default function WaiterTables() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Xona va Stollar</h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Xona va Stollar</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             {user?.venueName ?? "Filial"}
           </p>
         </div>
@@ -77,17 +77,17 @@ export default function WaiterTables() {
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-full bg-emerald-500" />
-              <span className="text-zinc-400">{freeCount} bo'sh</span>
+              <span className="text-muted-foreground">{freeCount} bo'sh</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-zinc-400">{occupiedCount} band</span>
+              <span className="text-muted-foreground">{occupiedCount} band</span>
             </div>
           </div>
           <Button
             variant="outline"
             size="sm"
-            className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+            className="border-border text-foreground hover:bg-accent"
             onClick={handleRefresh}
           >
             <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
@@ -97,15 +97,15 @@ export default function WaiterTables() {
       </div>
 
       {/* Last refresh */}
-      <p className="text-xs text-zinc-600 flex items-center gap-1">
+      <p className="text-xs text-muted-foreground flex items-center gap-1">
         <Clock className="h-3 w-3" />
         Oxirgi yangilanish: {lastRefresh.toLocaleTimeString("uz-UZ")}
       </p>
 
       {isLoading ? (
-        <div className="text-center py-16 text-zinc-500">Yuklanmoqda...</div>
+        <div className="text-center py-16 text-muted-foreground">Yuklanmoqda...</div>
       ) : typedRooms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-zinc-600 border border-dashed border-zinc-800 rounded-2xl">
+        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground border border-dashed border-border rounded-2xl">
           <DoorOpen className="h-16 w-16 mb-3 opacity-30" />
           <p className="text-lg font-medium">Xona yo'q</p>
           <p className="text-sm mt-1">Admin tomonidan xona va stollar qo'shilmagan</p>
@@ -119,19 +119,19 @@ export default function WaiterTables() {
               return (
                 <div
                   key={room.id}
-                  className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden"
+                  className="bg-card border border-border rounded-2xl overflow-hidden"
                 >
                   {/* Room header */}
-                  <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800/60">
+                  <div className="flex items-center gap-3 px-4 py-3 border-b border-border/60">
                     <DoorOpen className="h-4 w-4 text-blue-400" />
-                    <span className="font-semibold text-white">{room.name}</span>
+                    <span className="font-semibold text-foreground">{room.name}</span>
                     {room.description && (
-                      <span className="text-xs text-zinc-500">— {room.description}</span>
+                      <span className="text-xs text-muted-foreground">— {room.description}</span>
                     )}
-                    <Badge variant="outline" className="text-xs border-zinc-700 text-zinc-400">
+                    <Badge variant="outline" className="text-xs border-border text-muted-foreground">
                       {tables.length} stol
                     </Badge>
-                    <div className="ml-auto flex gap-2 text-xs text-zinc-500">
+                    <div className="ml-auto flex gap-2 text-xs text-muted-foreground">
                       <span className="text-emerald-500 font-medium">
                         {tables.filter((t) => !t.isOccupied).length} bo'sh
                       </span>
@@ -145,7 +145,7 @@ export default function WaiterTables() {
                   {/* Tables grid */}
                   <div className="p-4">
                     {tables.length === 0 ? (
-                      <p className="text-zinc-600 text-sm text-center py-4">Stol yo'q</p>
+                      <p className="text-muted-foreground text-sm text-center py-4">Stol yo'q</p>
                     ) : (
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {tables
@@ -201,13 +201,13 @@ function WaiterTableCard({
       </span>
 
       {table.name && (
-        <span className="text-xs text-zinc-400 mt-0.5 px-1 truncate max-w-full">{table.name}</span>
+        <span className="text-xs text-muted-foreground mt-0.5 px-1 truncate max-w-full">{table.name}</span>
       )}
 
       {table.capacity && (
         <div className="flex items-center gap-1 mt-1">
-          <Users className="h-3 w-3 text-zinc-500" />
-          <span className="text-xs text-zinc-500">{table.capacity}</span>
+          <Users className="h-3 w-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">{table.capacity}</span>
         </div>
       )}
 

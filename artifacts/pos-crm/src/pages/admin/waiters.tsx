@@ -92,12 +92,12 @@ export default function AdminWaiters() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Afitsilar</h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Afitsilar</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             {(waiters ?? []).length} ta afitsiant
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleOpen}>
+        <Button className="bg-blue-600 hover:bg-blue-700 text-foreground" onClick={handleOpen}>
           <Plus className="h-4 w-4 mr-2" />
           Afitsiant qo'shish
         </Button>
@@ -105,13 +105,13 @@ export default function AdminWaiters() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="text-zinc-500 text-center py-16">Yuklanmoqda...</div>
+        <div className="text-muted-foreground text-center py-16">Yuklanmoqda...</div>
       ) : (waiters ?? []).length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-zinc-800 rounded-2xl text-zinc-600">
+        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border rounded-2xl text-muted-foreground">
           <Users className="h-16 w-16 mb-3 opacity-30" />
           <p className="text-lg font-medium">Afitsiant yo'q</p>
           <p className="text-sm mt-1">Birinchi afitsiantni qo'shing</p>
-          <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white" onClick={handleOpen}>
+          <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-foreground" onClick={handleOpen}>
             <Plus className="h-4 w-4 mr-2" />
             Qo'shish
           </Button>
@@ -121,23 +121,23 @@ export default function AdminWaiters() {
           {(waiters ?? []).map((w) => (
             <div
               key={w.id}
-              className="flex items-center gap-4 bg-zinc-950 border border-zinc-800 rounded-xl px-5 py-4"
+              className="flex items-center gap-4 bg-card border border-border rounded-xl px-5 py-4"
             >
               {/* Avatar */}
-              <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold text-white shrink-0">
+              <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-bold text-foreground shrink-0">
                 {(w.name || w.username).charAt(0).toUpperCase()}
               </div>
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-white">
+                <p className="font-semibold text-foreground">
                   {w.name ? w.name : w.username}
                 </p>
-                <p className="text-sm text-zinc-400">@{w.username}</p>
+                <p className="text-sm text-muted-foreground">@{w.username}</p>
               </div>
 
               {/* Date */}
-              <div className="text-xs text-zinc-600 hidden sm:block">
+              <div className="text-xs text-muted-foreground hidden sm:block">
                 {new Date(w.createdAt).toLocaleDateString("uz-UZ")}
               </div>
 
@@ -157,7 +157,7 @@ export default function AdminWaiters() {
 
       {/* Modal */}
       <Dialog open={modal} onOpenChange={setModal}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle>Yangi Afitsiant</DialogTitle>
           </DialogHeader>
@@ -169,7 +169,7 @@ export default function AdminWaiters() {
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="Masalan: Sardor Karimov"
-                className="mt-1.5 bg-zinc-800 border-zinc-700 text-white"
+                className="mt-1.5 bg-input border-border text-foreground"
               />
             </div>
 
@@ -179,7 +179,7 @@ export default function AdminWaiters() {
                 value={form.username}
                 onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))}
                 placeholder="Masalan: sardor01"
-                className="mt-1.5 bg-zinc-800 border-zinc-700 text-white"
+                className="mt-1.5 bg-input border-border text-foreground"
                 autoComplete="off"
               />
             </div>
@@ -192,13 +192,13 @@ export default function AdminWaiters() {
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   placeholder="Kamida 4 ta belgi"
-                  className="bg-zinc-800 border-zinc-700 text-white pr-10"
+                  className="bg-input border-border text-foreground pr-10"
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-zinc-300"
                 >
                   {showPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -210,14 +210,14 @@ export default function AdminWaiters() {
             <Button
               variant="outline"
               onClick={() => setModal(false)}
-              className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+              className="border-border text-foreground hover:bg-accent"
             >
               Bekor qilish
             </Button>
             <Button
               onClick={handleCreate}
               disabled={createWaiter.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-foreground"
             >
               {createWaiter.isPending ? "Saqlanmoqda..." : "Qo'shish"}
             </Button>

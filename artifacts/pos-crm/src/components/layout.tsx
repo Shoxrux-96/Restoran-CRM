@@ -2,6 +2,7 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import {
   LayoutDashboard,
   Store,
@@ -60,19 +61,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
     userRole === "owner" ? "Egasi" : userRole === "waiter" ? "Afitsiant" : "Admin";
 
   return (
-    <div className="flex h-screen w-full bg-zinc-950 text-zinc-100 overflow-hidden">
+    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-zinc-800 bg-zinc-950 flex flex-col">
-        <div className="p-6">
-          <h1 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold">
-              R
-            </div>
-            RestoCRM
-          </h1>
-          {user?.venueName && (
-            <p className="text-sm text-zinc-400 mt-2 truncate">{user.venueName}</p>
-          )}
+      <aside className="w-64 border-r border-border bg-card flex flex-col">
+        <div className="p-6 flex items-start justify-between">
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white">
+                R
+              </div>
+              RestoCRM
+            </h1>
+            {user?.venueName && (
+              <p className="text-sm text-muted-foreground mt-2 truncate">{user.venueName}</p>
+            )}
+          </div>
+          <ThemeToggle className="text-muted-foreground hover:text-foreground mt-0.5" />
         </div>
 
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
@@ -85,7 +89,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${
                     isActive
                       ? "bg-blue-600/10 text-blue-500 font-medium"
-                      : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   }`}
                 >
                   <link.icon className="h-4 w-4" />
@@ -96,19 +100,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-zinc-800">
+        <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-sm font-medium">
+            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground">
               {user?.username.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{user?.name || user?.username}</p>
-              <p className="text-xs text-zinc-500">{roleLabel}</p>
+              <p className="text-sm font-medium truncate text-foreground">{user?.name || user?.username}</p>
+              <p className="text-xs text-muted-foreground">{roleLabel}</p>
             </div>
           </div>
           <Button
             variant="ghost"
-            className="w-full justify-start text-zinc-400 hover:text-red-400 hover:bg-red-400/10"
+            className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
             onClick={handleLogout}
             disabled={logoutMutation.isPending}
           >
@@ -119,7 +123,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-zinc-900">
+      <main className="flex-1 flex flex-col overflow-hidden bg-background">
         <div className="flex-1 overflow-auto p-6 md:p-8">{children}</div>
       </main>
     </div>

@@ -59,8 +59,8 @@ export default function OwnerUsers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Foydalanuvchilar</h1>
-          <p className="text-zinc-400 mt-1">Barcha admin va owner'lar</p>
+          <h1 className="text-2xl font-bold text-foreground">Foydalanuvchilar</h1>
+          <p className="text-muted-foreground mt-1">Barcha admin va owner'lar</p>
         </div>
         <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
@@ -69,31 +69,31 @@ export default function OwnerUsers() {
       </div>
 
       {isLoading ? (
-        <div className="text-zinc-400">Yuklanmoqda...</div>
+        <div className="text-muted-foreground">Yuklanmoqda...</div>
       ) : !users?.length ? (
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardContent className="py-16 text-center">
             <Users className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-            <p className="text-zinc-400">Foydalanuvchi topilmadi</p>
+            <p className="text-muted-foreground">Foydalanuvchi topilmadi</p>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-2">
           {users.map((u) => (
-            <Card key={u.id} className="bg-zinc-950 border-zinc-800">
+            <Card key={u.id} className="bg-card border-border">
               <CardContent className="py-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center">
-                    <User className="h-4 w-4 text-zinc-400" />
+                    <User className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <p className="font-medium text-white">{u.name || u.username}</p>
-                    <p className="text-sm text-zinc-400">@{u.username}</p>
+                    <p className="font-medium text-foreground">{u.name || u.username}</p>
+                    <p className="text-sm text-muted-foreground">@{u.username}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   {u.venueName && (
-                    <span className="text-sm text-zinc-400">{u.venueName}</span>
+                    <span className="text-sm text-muted-foreground">{u.venueName}</span>
                   )}
                   <Badge
                     className={u.role === "owner" ? "bg-purple-600/20 text-purple-400 border-purple-800" : "bg-blue-600/20 text-blue-400 border-blue-800"}
@@ -109,7 +109,7 @@ export default function OwnerUsers() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle>Yangi Foydalanuvchi</DialogTitle>
           </DialogHeader>
@@ -117,25 +117,25 @@ export default function OwnerUsers() {
             <div>
               <Label>Ism</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="To'liq ism" className="bg-zinc-800 border-zinc-700 mt-1" />
+                placeholder="To'liq ism" className="bg-input border-border mt-1" />
             </div>
             <div>
               <Label>Foydalanuvchi nomi</Label>
               <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })}
-                placeholder="username" className="bg-zinc-800 border-zinc-700 mt-1" />
+                placeholder="username" className="bg-input border-border mt-1" />
             </div>
             <div>
               <Label>Parol</Label>
               <Input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                placeholder="Parol" className="bg-zinc-800 border-zinc-700 mt-1" />
+                placeholder="Parol" className="bg-input border-border mt-1" />
             </div>
             <div>
               <Label>Roli</Label>
               <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v as UserInputRole })}>
-                <SelectTrigger className="bg-zinc-800 border-zinc-700 mt-1">
+                <SelectTrigger className="bg-input border-border mt-1">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-800 border-zinc-700">
+                <SelectContent className="bg-input border-border">
                   <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="owner">Egasi</SelectItem>
                 </SelectContent>
@@ -145,10 +145,10 @@ export default function OwnerUsers() {
               <div>
                 <Label>Filial (ixtiyoriy)</Label>
                 <Select value={form.venueId} onValueChange={(v) => setForm({ ...form, venueId: v })}>
-                  <SelectTrigger className="bg-zinc-800 border-zinc-700 mt-1">
+                  <SelectTrigger className="bg-input border-border mt-1">
                     <SelectValue placeholder="Filial tanlang" />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-800 border-zinc-700">
+                  <SelectContent className="bg-input border-border">
                     {venues?.map((v) => (
                       <SelectItem key={v.id} value={String(v.id)}>{v.name}</SelectItem>
                     ))}

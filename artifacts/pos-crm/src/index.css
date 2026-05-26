@@ -49,7 +49,52 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ── Light theme (default) ── */
 :root {
+  --background: 0 0% 98%;
+  --foreground: 240 10% 3.9%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --card-border: 240 5.9% 90%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --popover-border: 240 5.9% 90%;
+
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+
+  --accent: 240 4.8% 95.9%;
+  --accent-foreground: 240 5.9% 10%;
+
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 217.2 91.2% 59.8%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: Menlo, monospace;
+
+  --radius: 0.5rem;
+
+  --sidebar-bg: 0 0% 100%;
+  --sidebar-border: 240 5.9% 90%;
+  --sidebar-hover: 240 4.8% 95.9%;
+  --main-bg: 240 4.8% 95.9%;
+}
+
+/* ── Dark theme ── */
+.dark {
   --background: 240 10% 3.9%;
   --foreground: 0 0% 98%;
 
@@ -80,11 +125,10 @@
   --input: 240 3.7% 15.9%;
   --ring: 240 4.9% 83.9%;
 
-  --app-font-sans: 'Inter', sans-serif;
-  --app-font-serif: Georgia, serif;
-  --app-font-mono: Menlo, monospace;
-  
-  --radius: 0.5rem;
+  --sidebar-bg: 240 10% 3.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-hover: 240 3.7% 11%;
+  --main-bg: 240 3.7% 11%;
 }
 
 @layer base {

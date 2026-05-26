@@ -36,9 +36,9 @@ const CATEGORIES = [
   { value: "Gamburgerlar", label: "🍔 Gamburgerlar", ru: "Бургеры", color: "bg-red-500/10 text-red-400 border-red-800" },
   { value: "Pizzalar", label: "🍕 Pizzalar", ru: "Пицца", color: "bg-red-500/10 text-red-400 border-red-800" },
   { value: "Sushilar", label: "🍣 Sushilar", ru: "Суши", color: "bg-indigo-500/10 text-indigo-400 border-indigo-800" },
-  { value: "Mazzalar", label: "🍡 Mazzalar", ru: "Закуски", color: "bg-zinc-500/10 text-zinc-400 border-zinc-700" },
+  { value: "Mazzalar", label: "🍡 Mazzalar", ru: "Закуски", color: "bg-zinc-500/10 text-muted-foreground border-border" },
   { value: "Fastfood", label: "🌮 Fastfood", ru: "Fastfood", color: "bg-orange-500/10 text-orange-400 border-orange-800" },
-  { value: "Boshqa", label: "📦 Boshqa", ru: "Другое", color: "bg-zinc-500/10 text-zinc-400 border-zinc-700" },
+  { value: "Boshqa", label: "📦 Boshqa", ru: "Другое", color: "bg-zinc-500/10 text-muted-foreground border-border" },
 ];
 
 const UNITS = [
@@ -59,7 +59,7 @@ const UNITS = [
 ];
 
 const getCategoryMeta = (value: string) =>
-  CATEGORIES.find((c) => c.value === value) ?? { label: value, ru: "", color: "bg-zinc-500/10 text-zinc-400 border-zinc-700" };
+  CATEGORIES.find((c) => c.value === value) ?? { label: value, ru: "", color: "bg-zinc-500/10 text-muted-foreground border-border" };
 
 const emptyForm = {
   name: "",
@@ -167,8 +167,8 @@ export default function AdminProducts() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Mahsulotlar</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">{products?.length ?? 0} ta mahsulot</p>
+          <h1 className="text-2xl font-bold text-foreground">Mahsulotlar</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">{products?.length ?? 0} ta mahsulot</p>
         </div>
         <Button onClick={openCreate} className="bg-blue-600 hover:bg-blue-700 gap-2">
           <Plus className="h-4 w-4" />
@@ -179,18 +179,18 @@ export default function AdminProducts() {
       {/* Toolbar */}
       <div className="flex gap-3 items-center flex-wrap">
         <div className="relative flex-1 min-w-52">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Mahsulot qidirish..."
-            className="pl-9 bg-zinc-800 border-zinc-700 text-white h-9"
+            className="pl-9 bg-input border-border text-foreground h-9"
           />
         </div>
         <select
           value={filterCat}
           onChange={(e) => setFilterCat(e.target.value)}
-          className="bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 h-9"
+          className="bg-input border border-border text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 h-9"
         >
           <option value="all">Barcha kategoriyalar</option>
           {usedCategories.map((c) => {
@@ -199,16 +199,16 @@ export default function AdminProducts() {
           })}
         </select>
         {/* View mode */}
-        <div className="flex gap-1 bg-zinc-800 rounded-md p-1">
+        <div className="flex gap-1 bg-muted rounded-md p-1">
           <button
             onClick={() => setViewMode("grid")}
-            className={`px-2 py-1 rounded text-xs transition-colors ${viewMode === "grid" ? "bg-blue-600 text-white" : "text-zinc-400 hover:text-white"}`}
+            className={`px-2 py-1 rounded text-xs transition-colors ${viewMode === "grid" ? "bg-blue-600 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             Grid
           </button>
           <button
             onClick={() => setViewMode("list")}
-            className={`px-2 py-1 rounded text-xs transition-colors ${viewMode === "list" ? "bg-blue-600 text-white" : "text-zinc-400 hover:text-white"}`}
+            className={`px-2 py-1 rounded text-xs transition-colors ${viewMode === "list" ? "bg-blue-600 text-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
             Ro'yxat
           </button>
@@ -224,18 +224,18 @@ export default function AdminProducts() {
         </div>
       ) : !products?.length ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center mb-4">
-            <Package className="h-8 w-8 text-zinc-600" />
+          <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mb-4">
+            <Package className="h-8 w-8 text-muted-foreground" />
           </div>
-          <p className="text-zinc-400 font-medium">Mahsulotlar yo'q</p>
-          <p className="text-zinc-600 text-sm mt-1">Birinchi mahsulotni qo'shing</p>
+          <p className="text-muted-foreground font-medium">Mahsulotlar yo'q</p>
+          <p className="text-muted-foreground text-sm mt-1">Birinchi mahsulotni qo'shing</p>
           <Button onClick={openCreate} className="mt-4 bg-blue-600 hover:bg-blue-700 gap-2">
             <Plus className="h-4 w-4" />
             Qo'shish
           </Button>
         </div>
       ) : grouped.length === 0 ? (
-        <div className="text-center py-12 text-zinc-600">Qidiruv bo'yicha natija topilmadi</div>
+        <div className="text-center py-12 text-muted-foreground">Qidiruv bo'yicha natija topilmadi</div>
       ) : (
         <div className="space-y-6">
           {grouped.map(({ cat, meta, items }) => (
@@ -245,12 +245,12 @@ export default function AdminProducts() {
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{meta.label.split(" ")[0]}</span>
                   <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">{meta.label.slice(meta.label.indexOf(" ") + 1)}</h3>
-                    {meta.ru && <p className="text-xs text-zinc-600">{meta.ru}</p>}
+                    <h3 className="text-sm font-semibold text-foreground">{meta.label.slice(meta.label.indexOf(" ") + 1)}</h3>
+                    {meta.ru && <p className="text-xs text-muted-foreground">{meta.ru}</p>}
                   </div>
                 </div>
                 <Badge variant="outline" className={`text-xs ${meta.color}`}>{items.length} ta</Badge>
-                <div className="h-px flex-1 bg-zinc-800" />
+                <div className="h-px flex-1 bg-muted" />
               </div>
 
               {viewMode === "grid" ? (
@@ -285,14 +285,14 @@ export default function AdminProducts() {
 
       {/* Create/Edit Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-lg">
+        <DialogContent className="bg-card border-border text-foreground max-w-lg">
           <DialogHeader>
             <DialogTitle>{editing ? "Mahsulotni Tahrirlash" : "Yangi Mahsulot Qo'shish"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
             {/* Image preview */}
             {form.imageUrl && (
-              <div className="relative rounded-lg overflow-hidden h-36 bg-zinc-800">
+              <div className="relative rounded-lg overflow-hidden h-36 bg-muted">
                 <img src={form.imageUrl} alt="preview" className="w-full h-full object-cover" />
               </div>
             )}
@@ -304,7 +304,7 @@ export default function AdminProducts() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Mahsulot nomi"
-                  className="bg-zinc-800 border-zinc-700 mt-1"
+                  className="bg-input border-border mt-1"
                 />
               </div>
 
@@ -315,7 +315,7 @@ export default function AdminProducts() {
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: e.target.value })}
                   placeholder="15000"
-                  className="bg-zinc-800 border-zinc-700 mt-1"
+                  className="bg-input border-border mt-1"
                 />
               </div>
 
@@ -326,7 +326,7 @@ export default function AdminProducts() {
                   value={form.stock}
                   onChange={(e) => setForm({ ...form, stock: e.target.value })}
                   placeholder="100"
-                  className="bg-zinc-800 border-zinc-700 mt-1"
+                  className="bg-input border-border mt-1"
                 />
               </div>
 
@@ -335,7 +335,7 @@ export default function AdminProducts() {
                 <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full mt-1 bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                  className="w-full mt-1 bg-input border border-border text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c.value} value={c.value}>{c.label} · {c.ru}</option>
@@ -359,7 +359,7 @@ export default function AdminProducts() {
                       </button>
                     </div>
                   )}
-                  <label className="flex items-center justify-center gap-2 w-full h-10 border border-dashed border-zinc-600 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-500/5 transition-colors text-sm text-zinc-400 hover:text-blue-400">
+                  <label className="flex items-center justify-center gap-2 w-full h-10 border border-dashed border-zinc-600 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-500/5 transition-colors text-sm text-muted-foreground hover:text-blue-400">
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     {form.imageUrl ? "Boshqa rasm tanlash" : "Kompyuterdan rasm yuklash"}
                     <input
@@ -396,7 +396,7 @@ export default function AdminProducts() {
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="Mahsulot haqida qisqacha ma'lumot"
-                  className="bg-zinc-800 border-zinc-700 mt-1"
+                  className="bg-input border-border mt-1"
                 />
               </div>
 
@@ -411,7 +411,7 @@ export default function AdminProducts() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => setOpen(false)} className="text-zinc-400">Bekor</Button>
+            <Button variant="ghost" onClick={() => setOpen(false)} className="text-muted-foreground">Bekor</Button>
             <Button
               onClick={handleSave}
               disabled={!form.name || !form.price || !form.category || createProduct.isPending || updateProduct.isPending}
@@ -437,7 +437,7 @@ function ProductCard({ product: p, catMeta, onEdit, onDelete }: {
   const imageUrl = (p as any).imageUrl as string | null;
 
   return (
-    <div className={`group relative bg-zinc-950 border rounded-xl overflow-hidden transition-all hover:border-zinc-600 hover:shadow-lg hover:shadow-black/30 ${!p.isAvailable ? "opacity-60 border-zinc-800/50" : "border-zinc-800"}`}>
+    <div className={`group relative bg-card border rounded-xl overflow-hidden transition-all hover:border-zinc-600 hover:shadow-lg hover:shadow-black/30 ${!p.isAvailable ? "opacity-60 border-border/50" : "border-border"}`}>
       {/* Image area */}
       <div className="relative h-36 bg-zinc-800 overflow-hidden">
         {imageUrl ? (
@@ -458,7 +458,7 @@ function ProductCard({ product: p, catMeta, onEdit, onDelete }: {
 
         {/* Availability badge */}
         <div className="absolute top-2 left-2">
-          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${p.isAvailable ? "bg-green-600/80 text-white" : "bg-zinc-700/80 text-zinc-400"}`}>
+          <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${p.isAvailable ? "bg-green-600/80 text-foreground" : "bg-zinc-700/80 text-muted-foreground"}`}>
             {p.isAvailable ? "Mavjud" : "Yo'q"}
           </span>
         </div>
@@ -482,16 +482,16 @@ function ProductCard({ product: p, catMeta, onEdit, onDelete }: {
 
       {/* Info area */}
       <div className="p-3">
-        <h4 className="font-semibold text-white text-sm leading-tight line-clamp-2 mb-1">{p.name}</h4>
+        <h4 className="font-semibold text-foreground text-sm leading-tight line-clamp-2 mb-1">{p.name}</h4>
         {p.description && (
-          <p className="text-xs text-zinc-500 line-clamp-2 mb-2">{p.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{p.description}</p>
         )}
         <div className="flex items-end justify-between gap-1 mt-auto">
-          <p className="text-base font-bold text-blue-400">{new Intl.NumberFormat("uz-UZ").format(p.price)}<span className="text-xs text-zinc-500 font-normal ml-0.5">so'm</span></p>
+          <p className="text-base font-bold text-blue-400">{new Intl.NumberFormat("uz-UZ").format(p.price)}<span className="text-xs text-muted-foreground font-normal ml-0.5">so'm</span></p>
           {stock != null && (
             <div className="flex items-center gap-1 text-xs">
-              <Layers className="h-3 w-3 text-zinc-500" />
-              <span className={stock <= 5 ? "text-red-400 font-medium" : "text-zinc-400"}>{stock}</span>
+              <Layers className="h-3 w-3 text-muted-foreground" />
+              <span className={stock <= 5 ? "text-red-400 font-medium" : "text-muted-foreground"}>{stock}</span>
             </div>
           )}
         </div>
@@ -511,7 +511,7 @@ function ProductRow({ product: p, catMeta, onEdit, onDelete }: {
   const imageUrl = (p as any).imageUrl as string | null;
 
   return (
-    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${p.isAvailable ? "bg-zinc-950 border-zinc-800 hover:border-zinc-700" : "bg-zinc-950/50 border-zinc-800/50 opacity-60"}`}>
+    <div className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${p.isAvailable ? "bg-card border-border hover:border-border" : "bg-card/50 border-border/50 opacity-60"}`}>
       {/* Thumbnail */}
       <div className="w-12 h-12 rounded-lg bg-zinc-800 overflow-hidden shrink-0 flex items-center justify-center">
         {imageUrl ? (
@@ -524,31 +524,31 @@ function ProductRow({ product: p, catMeta, onEdit, onDelete }: {
       {/* Name + description */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-medium text-white text-sm truncate">{p.name}</p>
-          {!p.isAvailable && <span className="text-xs text-zinc-600 shrink-0">· Yo'q</span>}
+          <p className="font-medium text-foreground text-sm truncate">{p.name}</p>
+          {!p.isAvailable && <span className="text-xs text-muted-foreground shrink-0">· Yo'q</span>}
         </div>
-        {p.description && <p className="text-xs text-zinc-500 truncate mt-0.5">{p.description}</p>}
+        {p.description && <p className="text-xs text-muted-foreground truncate mt-0.5">{p.description}</p>}
       </div>
 
       {/* Stock */}
       {stock != null && (
         <div className="flex items-center gap-1 shrink-0">
-          <Layers className="h-3 w-3 text-zinc-600" />
-          <span className={`text-xs ${stock <= 5 ? "text-red-400 font-medium" : "text-zinc-500"}`}>{stock} ta</span>
+          <Layers className="h-3 w-3 text-muted-foreground" />
+          <span className={`text-xs ${stock <= 5 ? "text-red-400 font-medium" : "text-muted-foreground"}`}>{stock} ta</span>
         </div>
       )}
 
       {/* Price */}
-      <p className="text-sm font-bold text-white shrink-0 min-w-24 text-right">
-        {new Intl.NumberFormat("uz-UZ").format(p.price)}<span className="text-xs text-zinc-500 font-normal"> so'm</span>
+      <p className="text-sm font-bold text-foreground shrink-0 min-w-24 text-right">
+        {new Intl.NumberFormat("uz-UZ").format(p.price)}<span className="text-xs text-muted-foreground font-normal"> so'm</span>
       </p>
 
       {/* Actions */}
       <div className="flex gap-1 shrink-0">
-        <Button variant="ghost" size="icon" onClick={() => onEdit(p)} className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-zinc-800">
+        <Button variant="ghost" size="icon" onClick={() => onEdit(p)} className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent">
           <Pencil className="h-3.5 w-3.5" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => onDelete(p.id)} className="h-8 w-8 text-zinc-600 hover:text-red-400 hover:bg-red-400/10">
+        <Button variant="ghost" size="icon" onClick={() => onDelete(p.id)} className="h-8 w-8 text-muted-foreground hover:text-red-400 hover:bg-red-400/10">
           <Trash2 className="h-3.5 w-3.5" />
         </Button>
       </div>

@@ -218,8 +218,8 @@ export default function WaiterOrder() {
     return (
       <div className="fixed inset-0 flex flex-col items-center justify-center bg-zinc-900">
         <CheckCircle className="h-16 w-16 text-emerald-500 mb-4" />
-        <p className="text-xl font-bold text-white">Buyurtma saqlandi!</p>
-        <p className="text-zinc-400 mt-1">Stollar sahifasiga qaytilmoqda...</p>
+        <p className="text-xl font-bold text-foreground">Buyurtma saqlandi!</p>
+        <p className="text-muted-foreground mt-1">Stollar sahifasiga qaytilmoqda...</p>
       </div>
     );
   }
@@ -230,17 +230,17 @@ export default function WaiterOrder() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => setLocation("/waiter/tables")}
-          className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white">
+          <h1 className="text-xl font-bold text-foreground">
             {tableInfo ? `Stol #${tableInfo.number}` : "Buyurtma"}
             {tableInfo?.name ? ` · ${tableInfo.name}` : ""}
           </h1>
           {tableInfo?.roomName && (
-            <p className="text-sm text-zinc-400">{tableInfo.roomName}</p>
+            <p className="text-sm text-muted-foreground">{tableInfo.roomName}</p>
           )}
         </div>
         {existingOrder && (
@@ -251,25 +251,25 @@ export default function WaiterOrder() {
       </div>
 
       {/* Product search */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4 space-y-3">
+      <div className="bg-card border border-border rounded-xl p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-300">Mahsulot qo'shish</h2>
+          <h2 className="text-sm font-semibold text-foreground">Mahsulot qo'shish</h2>
         </div>
 
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             ref={searchRef}
             value={search}
             onChange={(e) => { setSearch(e.target.value); setShowSearch(true); }}
             onFocus={() => setShowSearch(true)}
             placeholder="Mahsulot nomini qidiring..."
-            className="w-full pl-9 pr-4 py-2.5 bg-zinc-800 border border-zinc-700 text-white rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+            className="w-full pl-9 pr-4 py-2.5 bg-input border border-border text-foreground rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
           />
           {search && (
             <button
               onClick={() => { setSearch(""); setShowSearch(false); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -280,7 +280,7 @@ export default function WaiterOrder() {
         {(showSearch || search) && (
           <div className="max-h-60 overflow-y-auto space-y-1 rounded-lg">
             {filteredProducts.length === 0 ? (
-              <p className="text-zinc-500 text-sm text-center py-3">Mahsulot topilmadi</p>
+              <p className="text-muted-foreground text-sm text-center py-3">Mahsulot topilmadi</p>
             ) : (
               filteredProducts.map((product) => (
                 <button
@@ -289,16 +289,16 @@ export default function WaiterOrder() {
                   className="w-full flex items-center justify-between px-3 py-2.5 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-left"
                 >
                   <div>
-                    <p className="text-sm font-medium text-white">{product.name}</p>
+                    <p className="text-sm font-medium text-foreground">{product.name}</p>
                     {product.category && (
-                      <p className="text-xs text-zinc-500">{product.category}</p>
+                      <p className="text-xs text-muted-foreground">{product.category}</p>
                     )}
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-semibold text-blue-400">
                       {fmt(product.price)} so'm
                     </p>
-                    <Plus className="h-3.5 w-3.5 text-zinc-400 ml-auto mt-0.5" />
+                    <Plus className="h-3.5 w-3.5 text-muted-foreground ml-auto mt-0.5" />
                   </div>
                 </button>
               ))
@@ -308,16 +308,16 @@ export default function WaiterOrder() {
       </div>
 
       {/* Cart */}
-      <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-4">
+      <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex items-center gap-2 mb-3">
-          <ShoppingCart className="h-4 w-4 text-zinc-400" />
-          <h2 className="text-sm font-semibold text-zinc-300">
+          <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-semibold text-foreground">
             Buyurtma ({cart.length} mahsulot)
           </h2>
         </div>
 
         {cart.length === 0 ? (
-          <div className="text-center py-8 text-zinc-600">
+          <div className="text-center py-8 text-muted-foreground">
             <ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-30" />
             <p className="text-sm">Mahsulot qo'shing</p>
           </div>
@@ -329,24 +329,24 @@ export default function WaiterOrder() {
                 className="flex items-center gap-3 bg-zinc-900 rounded-lg px-3 py-2.5"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white truncate">{item.product.name}</p>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-sm font-medium text-foreground truncate">{item.product.name}</p>
+                  <p className="text-xs text-muted-foreground">
                     {fmt(item.product.price)} × {item.quantity} = {fmt(item.product.price * item.quantity)} so'm
                   </p>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => changeQty(item.product.id, -1)}
-                    className="w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-md text-zinc-300"
+                    className="w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-md text-foreground"
                   >
                     <Minus className="h-3.5 w-3.5" />
                   </button>
-                  <span className="w-8 text-center text-sm font-bold text-white">
+                  <span className="w-8 text-center text-sm font-bold text-foreground">
                     {item.quantity}
                   </span>
                   <button
                     onClick={() => changeQty(item.product.id, 1)}
-                    className="w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-md text-zinc-300"
+                    className="w-7 h-7 flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 rounded-md text-foreground"
                   >
                     <Plus className="h-3.5 w-3.5" />
                   </button>
@@ -361,9 +361,9 @@ export default function WaiterOrder() {
             ))}
 
             {/* Total */}
-            <div className="mt-3 pt-3 border-t border-zinc-800 flex items-center justify-between">
-              <span className="text-zinc-400 text-sm">Jami:</span>
-              <span className="text-xl font-bold text-white">{fmt(total)} so'm</span>
+            <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+              <span className="text-muted-foreground text-sm">Jami:</span>
+              <span className="text-xl font-bold text-foreground">{fmt(total)} so'm</span>
             </div>
           </div>
         )}
@@ -385,7 +385,7 @@ export default function WaiterOrder() {
         <Button
           variant="outline"
           onClick={() => setLocation("/waiter/tables")}
-          className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+          className="border-border text-foreground hover:bg-accent"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Orqaga
@@ -393,7 +393,7 @@ export default function WaiterOrder() {
         <Button
           onClick={handleSave}
           disabled={cart.length === 0 || createOpenOrder.isPending || updateOpenOrder.isPending}
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+          className="flex-1 bg-blue-600 hover:bg-blue-700 text-foreground font-semibold"
         >
           <Save className="h-4 w-4 mr-2" />
           {createOpenOrder.isPending || updateOpenOrder.isPending

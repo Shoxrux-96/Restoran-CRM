@@ -10,30 +10,30 @@ export default function OwnerDashboard() {
   const { data, isLoading } = useGetOwnerSummary();
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64 text-zinc-400">Yuklanmoqda...</div>;
+    return <div className="flex items-center justify-center h-64 text-muted-foreground">Yuklanmoqda...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Umumiy Ko'rinish</h1>
-        <p className="text-zinc-400 mt-1">Barcha filiallar statistikasi</p>
+        <h1 className="text-2xl font-bold text-foreground">Umumiy Ko'rinish</h1>
+        <p className="text-muted-foreground mt-1">Barcha filiallar statistikasi</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Jami Filiallar</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Jami Filiallar</CardTitle>
             <Store className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-white">{data?.totalVenues ?? 0}</div>
+            <div className="text-3xl font-bold text-foreground">{data?.totalVenues ?? 0}</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Jami Daromad</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Jami Daromad</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -41,9 +41,9 @@ export default function OwnerDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-zinc-400">Jami Qarz</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Jami Qarz</CardTitle>
             <AlertCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
@@ -52,20 +52,20 @@ export default function OwnerDashboard() {
         </Card>
       </div>
 
-      <Card className="bg-zinc-950 border-zinc-800">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-white">Filiallar Bo'yicha (Bugun)</CardTitle>
+          <CardTitle className="text-foreground">Filiallar Bo'yicha (Bugun)</CardTitle>
         </CardHeader>
         <CardContent>
           {!data?.venueStats?.length ? (
-            <p className="text-zinc-500 text-sm py-4 text-center">Filial topilmadi</p>
+            <p className="text-muted-foreground text-sm py-4 text-center">Filial topilmadi</p>
           ) : (
             <div className="space-y-3">
               {data.venueStats.map((v) => (
-                <div key={v.venueId} className="flex items-center justify-between p-4 bg-zinc-900 rounded-lg border border-zinc-800">
+                <div key={v.venueId} className="flex items-center justify-between p-4 bg-zinc-900 rounded-lg border border-border">
                   <div>
-                    <p className="font-semibold text-white">{v.venueName}</p>
-                    <p className="text-sm text-zinc-400">{v.orderCount ?? 0} ta buyurtma bugun</p>
+                    <p className="font-semibold text-foreground">{v.venueName}</p>
+                    <p className="text-sm text-muted-foreground">{v.orderCount ?? 0} ta buyurtma bugun</p>
                   </div>
                   <div className="text-right">
                     <p className="text-green-400 font-semibold">{fmt(v.todayRevenue)}</p>

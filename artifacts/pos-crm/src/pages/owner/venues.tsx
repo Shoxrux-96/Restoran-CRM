@@ -61,8 +61,8 @@ export default function OwnerVenues() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Filiallar</h1>
-          <p className="text-zinc-400 mt-1">Barcha kafe va restoranlar</p>
+          <h1 className="text-2xl font-bold text-foreground">Filiallar</h1>
+          <p className="text-muted-foreground mt-1">Barcha kafe va restoranlar</p>
         </div>
         <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
@@ -71,12 +71,12 @@ export default function OwnerVenues() {
       </div>
 
       {isLoading ? (
-        <div className="text-zinc-400">Yuklanmoqda...</div>
+        <div className="text-muted-foreground">Yuklanmoqda...</div>
       ) : !venues?.length ? (
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardContent className="py-16 text-center">
             <Store className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-            <p className="text-zinc-400">Hali filial yo'q</p>
+            <p className="text-muted-foreground">Hali filial yo'q</p>
           </CardContent>
         </Card>
       ) : (
@@ -85,7 +85,7 @@ export default function OwnerVenues() {
             <Card
               key={venue.id}
               onClick={() => setLocation(`/owner/venues/${venue.id}`)}
-              className="bg-zinc-950 border-zinc-800 hover:border-blue-700 cursor-pointer transition-colors"
+              className="bg-card border-border hover:border-blue-700 cursor-pointer transition-colors"
             >
               <CardHeader className="flex flex-row items-start justify-between pb-2">
                 <div className="flex items-center gap-3">
@@ -93,8 +93,8 @@ export default function OwnerVenues() {
                     <Store className="h-5 w-5 text-blue-500" />
                   </div>
                   <div>
-                    <CardTitle className="text-white text-lg">{venue.name}</CardTitle>
-                    <Badge variant="outline" className="mt-1 text-xs capitalize border-zinc-700 text-zinc-400">
+                    <CardTitle className="text-foreground text-lg">{venue.name}</CardTitle>
+                    <Badge variant="outline" className="mt-1 text-xs capitalize border-border text-muted-foreground">
                       {venue.type === "cafe" ? "Kafe" : "Restoran"}
                     </Badge>
                   </div>
@@ -108,16 +108,16 @@ export default function OwnerVenues() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
-                  <ChevronRight className="h-4 w-4 text-zinc-600" />
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
               </CardHeader>
               <CardContent>
-                {venue.address && <p className="text-sm text-zinc-400">{venue.address}</p>}
-                {venue.phone && <p className="text-sm text-zinc-400">{venue.phone}</p>}
+                {venue.address && <p className="text-sm text-muted-foreground">{venue.address}</p>}
+                {venue.phone && <p className="text-sm text-muted-foreground">{venue.phone}</p>}
                 {venue.adminName ? (
-                  <p className="text-sm text-zinc-300 mt-2">Admin: <span className="text-blue-400">{venue.adminName}</span></p>
+                  <p className="text-sm text-foreground mt-2">Admin: <span className="text-blue-400">{venue.adminName}</span></p>
                 ) : (
-                  <p className="text-sm text-zinc-600 mt-2">Admin tayinlanmagan</p>
+                  <p className="text-sm text-muted-foreground mt-2">Admin tayinlanmagan</p>
                 )}
               </CardContent>
             </Card>
@@ -126,7 +126,7 @@ export default function OwnerVenues() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle>Yangi Filial Qo'shish</DialogTitle>
           </DialogHeader>
@@ -137,16 +137,16 @@ export default function OwnerVenues() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Filial nomi"
-                className="bg-zinc-800 border-zinc-700 mt-1"
+                className="bg-input border-border mt-1"
               />
             </div>
             <div>
               <Label>Turi</Label>
               <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v as VenueInputType })}>
-                <SelectTrigger className="bg-zinc-800 border-zinc-700 mt-1">
+                <SelectTrigger className="bg-input border-border mt-1">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-800 border-zinc-700">
+                <SelectContent className="bg-input border-border">
                   <SelectItem value="cafe">Kafe</SelectItem>
                   <SelectItem value="restaurant">Restoran</SelectItem>
                 </SelectContent>
@@ -158,7 +158,7 @@ export default function OwnerVenues() {
                 value={form.address}
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
                 placeholder="Manzil (ixtiyoriy)"
-                className="bg-zinc-800 border-zinc-700 mt-1"
+                className="bg-input border-border mt-1"
               />
             </div>
             <div>
@@ -167,7 +167,7 @@ export default function OwnerVenues() {
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="+998901234567 (ixtiyoriy)"
-                className="bg-zinc-800 border-zinc-700 mt-1"
+                className="bg-input border-border mt-1"
               />
             </div>
           </div>

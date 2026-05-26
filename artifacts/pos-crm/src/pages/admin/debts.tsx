@@ -95,41 +95,41 @@ export default function AdminDebts() {
     { key: "unpaid" as const, label: "Qarzdorlar", count: unpaidCount + partialCount, color: "text-red-400" },
     { key: "partial" as const, label: "Qisman", count: partialCount, color: "text-yellow-400" },
     { key: "paid" as const, label: "To'langan", count: paidCount, color: "text-green-400" },
-    { key: "all" as const, label: "Barchasi", count: debts?.length ?? 0, color: "text-zinc-400" },
+    { key: "all" as const, label: "Barchasi", count: debts?.length ?? 0, color: "text-muted-foreground" },
   ];
 
   return (
     <div className="space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">Qarz Daftar</h1>
-        <p className="text-zinc-400 mt-1">Qarzga savdo qilgan mijozlar ro'yxati</p>
+        <h1 className="text-2xl font-bold text-foreground">Qarz Daftar</h1>
+        <p className="text-muted-foreground mt-1">Qarzga savdo qilgan mijozlar ro'yxati</p>
       </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-3">
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-zinc-500">Jami qarzdorlar</span>
+              <span className="text-xs text-muted-foreground">Jami qarzdorlar</span>
               <AlertCircle className="h-3.5 w-3.5 text-red-500" />
             </div>
             <p className="text-xl font-bold text-red-400">{unpaidCount + partialCount} ta</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-zinc-500">Jami qarz summasi</span>
+              <span className="text-xs text-muted-foreground">Jami qarz summasi</span>
               <Wallet className="h-3.5 w-3.5 text-orange-500" />
             </div>
             <p className="text-xl font-bold text-orange-400">{fmt(totalUnpaid)}</p>
           </CardContent>
         </Card>
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-zinc-500">To'langan</span>
+              <span className="text-xs text-muted-foreground">To'langan</span>
               <CheckCircle className="h-3.5 w-3.5 text-green-500" />
             </div>
             <p className="text-xl font-bold text-green-400">{paidCount} ta</p>
@@ -146,8 +146,8 @@ export default function AdminDebts() {
               onClick={() => setFilter(f.key)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                 filter === f.key
-                  ? "bg-blue-600 text-white"
-                  : "bg-zinc-800 text-zinc-400 hover:text-zinc-200"
+                  ? "bg-blue-600 text-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
               }`}
             >
               {f.label}
@@ -156,24 +156,24 @@ export default function AdminDebts() {
           ))}
         </div>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Mijoz nomi bo'yicha qidirish..."
-            className="pl-9 bg-zinc-800 border-zinc-700 text-white h-9 text-sm"
+            className="pl-9 bg-input border-border text-foreground h-9 text-sm"
           />
         </div>
       </div>
 
       {/* List */}
       {isLoading ? (
-        <div className="text-zinc-500 text-center py-10">Yuklanmoqda...</div>
+        <div className="text-muted-foreground text-center py-10">Yuklanmoqda...</div>
       ) : !filtered.length ? (
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardContent className="py-14 text-center">
             <Receipt className="h-10 w-10 text-zinc-700 mx-auto mb-3" />
-            <p className="text-zinc-400">{filter === "unpaid" ? "Qarzdor mijozlar yo'q" : "Yozuv topilmadi"}</p>
+            <p className="text-muted-foreground">{filter === "unpaid" ? "Qarzdor mijozlar yo'q" : "Yozuv topilmadi"}</p>
           </CardContent>
         </Card>
       ) : (
@@ -182,20 +182,20 @@ export default function AdminDebts() {
             const remaining = d.remaining ?? d.amount;
             const pct = d.amount > 0 ? ((d.paidAmount ?? 0) / d.amount) * 100 : 0;
             return (
-              <Card key={d.id} className={`border transition-colors ${d.status === "paid" ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-950 border-zinc-800 hover:border-zinc-700"}`}>
+              <Card key={d.id} className={`border transition-colors ${d.status === "paid" ? "bg-card/50 border-border/50" : "bg-card border-border hover:border-border"}`}>
                 <CardContent className="py-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <p className="font-semibold text-white">{d.customerName}</p>
+                        <p className="font-semibold text-foreground">{d.customerName}</p>
                         {statusBadge(d.status)}
                       </div>
                       {d.customerPhone && (
-                        <p className="text-sm text-zinc-400 flex items-center gap-1">
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Phone className="h-3 w-3" /> {d.customerPhone}
                         </p>
                       )}
-                      <p className="text-xs text-zinc-600 mt-1 flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         Buyurtma #{d.orderId} · {fmtDate(d.createdAt)}
                       </p>
@@ -203,11 +203,11 @@ export default function AdminDebts() {
                       {/* Progress bar for partial payments */}
                       {d.status === "partial" && d.amount > 0 && (
                         <div className="mt-2">
-                          <div className="flex justify-between text-xs text-zinc-500 mb-1">
+                          <div className="flex justify-between text-xs text-muted-foreground mb-1">
                             <span>To'landi: {fmt(d.paidAmount ?? 0)}</span>
                             <span>{Math.round(pct)}%</span>
                           </div>
-                          <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                             <div
                               className="h-full bg-yellow-500 rounded-full transition-all"
                               style={{ width: `${pct}%` }}
@@ -218,11 +218,11 @@ export default function AdminDebts() {
                     </div>
 
                     <div className="text-right shrink-0">
-                      <p className="text-xs text-zinc-500">Jami:</p>
-                      <p className="text-sm text-zinc-300 font-medium">{fmt(d.amount)}</p>
+                      <p className="text-xs text-muted-foreground">Jami:</p>
+                      <p className="text-sm text-foreground font-medium">{fmt(d.amount)}</p>
                       {d.status !== "paid" && (
                         <>
-                          <p className="text-xs text-zinc-500 mt-1">Qoldi:</p>
+                          <p className="text-xs text-muted-foreground mt-1">Qoldi:</p>
                           <p className="text-lg font-bold text-red-400">{fmt(remaining)}</p>
                         </>
                       )}
@@ -236,7 +236,7 @@ export default function AdminDebts() {
                             setPayingDebt(d);
                             setPayAmount(String(Math.round(remaining)));
                           }}
-                          className="mt-2 bg-green-600 hover:bg-green-700 text-white text-xs h-8"
+                          className="mt-2 bg-green-600 hover:bg-green-700 text-foreground text-xs h-8"
                         >
                           <CheckCircle className="h-3 w-3 mr-1" />
                           To'lash
@@ -253,33 +253,33 @@ export default function AdminDebts() {
 
       {/* Pay Dialog */}
       <Dialog open={!!payingDebt} onOpenChange={() => { setPayingDebt(null); setPayAmount(""); }}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100 max-w-sm">
+        <DialogContent className="bg-card border-border text-foreground max-w-sm">
           <DialogHeader>
             <DialogTitle>Qarz To'lash</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="p-3 bg-zinc-800 rounded-lg space-y-2 text-sm">
+            <div className="p-3 bg-muted rounded-lg space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-zinc-400">Mijoz:</span>
-                <span className="text-white font-medium">{payingDebt?.customerName}</span>
+                <span className="text-muted-foreground">Mijoz:</span>
+                <span className="text-foreground font-medium">{payingDebt?.customerName}</span>
               </div>
               {payingDebt?.customerPhone && (
                 <div className="flex justify-between">
-                  <span className="text-zinc-400">Telefon:</span>
+                  <span className="text-muted-foreground">Telefon:</span>
                   <span className="text-zinc-300">{payingDebt.customerPhone}</span>
                 </div>
               )}
               <div className="flex justify-between">
-                <span className="text-zinc-400">Jami qarz:</span>
-                <span className="text-white">{fmt(payingDebt?.amount ?? 0)}</span>
+                <span className="text-muted-foreground">Jami qarz:</span>
+                <span className="text-foreground">{fmt(payingDebt?.amount ?? 0)}</span>
               </div>
               {(payingDebt?.paidAmount ?? 0) > 0 && (
                 <div className="flex justify-between">
-                  <span className="text-zinc-400">To'langan:</span>
+                  <span className="text-muted-foreground">To'langan:</span>
                   <span className="text-green-400">{fmt(payingDebt?.paidAmount ?? 0)}</span>
                 </div>
               )}
-              <div className="flex justify-between border-t border-zinc-700 pt-2">
+              <div className="flex justify-between border-t border-border pt-2">
                 <span className="text-zinc-300 font-medium">Qoldiq qarz:</span>
                 <span className="text-red-400 font-bold">{fmt(payingDebt?.remaining ?? 0)}</span>
               </div>
@@ -293,7 +293,7 @@ export default function AdminDebts() {
                 onChange={(e) => setPayAmount(e.target.value)}
                 max={payingDebt?.remaining ?? payingDebt?.amount}
                 placeholder="Miqdorni kiriting"
-                className="bg-zinc-800 border-zinc-700 mt-1.5 text-white"
+                className="bg-input border-border mt-1.5 text-foreground"
               />
               <div className="flex gap-2 mt-2">
                 <button
@@ -305,7 +305,7 @@ export default function AdminDebts() {
                 <span className="text-zinc-700">·</span>
                 <button
                   onClick={() => setPayAmount(String(Math.round((payingDebt?.remaining ?? 0) / 2)))}
-                  className="text-xs text-zinc-400 hover:text-zinc-300 underline"
+                  className="text-xs text-muted-foreground hover:text-zinc-300 underline"
                 >
                   Yarmini to'lash
                 </button>
@@ -313,7 +313,7 @@ export default function AdminDebts() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={() => { setPayingDebt(null); setPayAmount(""); }} className="text-zinc-400">
+            <Button variant="ghost" onClick={() => { setPayingDebt(null); setPayAmount(""); }} className="text-muted-foreground">
               Bekor
             </Button>
             <Button

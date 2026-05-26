@@ -360,20 +360,20 @@ function SplitPaymentPanel({
   return (
     <div className="fixed inset-0 z-40 flex flex-col justify-end" onClick={onCancel}>
       <div
-        className="bg-zinc-900 border-t border-zinc-700 rounded-t-2xl shadow-2xl p-5 max-w-lg mx-auto w-full max-h-[90vh] overflow-y-auto"
+        className="bg-zinc-900 border-t border-border rounded-t-2xl shadow-2xl p-5 max-w-lg mx-auto w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideUp 0.25s ease-out" }}
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Shuffle className="h-5 w-5 text-purple-400" />
-            <h3 className="text-lg font-bold text-white">Aralash To'lov</h3>
+            <h3 className="text-lg font-bold text-foreground">Aralash To'lov</h3>
           </div>
-          <button onClick={onCancel} className="text-zinc-500 hover:text-white"><X className="h-5 w-5" /></button>
+          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
-        <div className="bg-zinc-800 rounded-xl p-3 flex justify-between items-center mb-4">
-          <span className="text-zinc-400 text-sm">To'lov summasi:</span>
-          <span className="text-xl font-bold text-white">{fmt(total)} so'm</span>
+        <div className="bg-muted rounded-xl p-3 flex justify-between items-center mb-4">
+          <span className="text-muted-foreground text-sm">To'lov summasi:</span>
+          <span className="text-xl font-bold text-foreground">{fmt(total)} so'm</span>
         </div>
         <div className="space-y-3 mb-4">
           {[
@@ -383,8 +383,8 @@ function SplitPaymentPanel({
           ].map(({ key, label, color, val, set }) => (
             <div key={key} className="flex items-center gap-3">
               <span className={`text-sm font-medium w-28 shrink-0 ${color}`}>{label}</span>
-              <Input type="number" value={val} onChange={(e) => set(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white" placeholder="0" />
-              <button onClick={() => set(String(Math.round(autoBalance(key, 0))))} className="text-xs text-zinc-500 hover:text-zinc-300 shrink-0 whitespace-nowrap">
+              <Input type="number" value={val} onChange={(e) => set(e.target.value)} className="bg-input border-border text-foreground" placeholder="0" />
+              <button onClick={() => set(String(Math.round(autoBalance(key, 0))))} className="text-xs text-muted-foreground hover:text-zinc-300 shrink-0 whitespace-nowrap">
                 Avto
               </button>
             </div>
@@ -398,18 +398,18 @@ function SplitPaymentPanel({
           <div className="border border-red-900/50 rounded-xl p-3 mb-4 space-y-3">
             <p className="text-sm text-red-400 font-medium">Qarz uchun mijoz tanlang ({fmt(debt)} so'm)</p>
             <div className="flex gap-2">
-              <button onClick={() => setDebtMode("existing")} className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${debtMode === "existing" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400"}`}>Mavjud</button>
-              <button onClick={() => setDebtMode("new")} className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${debtMode === "new" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400"}`}><UserPlus className="h-3 w-3" />Yangi</button>
+              <button onClick={() => setDebtMode("existing")} className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${debtMode === "existing" ? "bg-blue-600 text-foreground" : "bg-muted text-muted-foreground"}`}>Mavjud</button>
+              <button onClick={() => setDebtMode("new")} className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-1 ${debtMode === "new" ? "bg-blue-600 text-foreground" : "bg-muted text-muted-foreground"}`}><UserPlus className="h-3 w-3" />Yangi</button>
             </div>
             {debtMode === "existing" ? (
-              <select value={selectedCustomerId} onChange={(e) => setSelectedCustomerId(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none">
+              <select value={selectedCustomerId} onChange={(e) => setSelectedCustomerId(e.target.value)} className="w-full bg-input border border-border text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none">
                 <option value="">— Mijozni tanlang —</option>
                 {customers.map((c) => <option key={c.id} value={String(c.id)}>{c.name} {c.phone ? `(${c.phone})` : ""}</option>)}
               </select>
             ) : (
               <>
-                <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Ism *" className="bg-zinc-800 border-zinc-700 text-white" />
-                <Input value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="Telefon" className="bg-zinc-800 border-zinc-700 text-white" />
+                <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Ism *" className="bg-input border-border text-foreground" />
+                <Input value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="Telefon" className="bg-input border-border text-foreground" />
               </>
             )}
           </div>
@@ -471,34 +471,34 @@ function DebtPanel({
 
   return (
     <div className="fixed inset-0 z-40 flex flex-col justify-end" onClick={onCancel}>
-      <div className="bg-zinc-900 border-t border-zinc-700 rounded-t-2xl shadow-2xl p-5 max-w-lg mx-auto w-full" onClick={(e) => e.stopPropagation()} style={{ animation: "slideUp 0.25s ease-out" }}>
+      <div className="bg-zinc-900 border-t border-border rounded-t-2xl shadow-2xl p-5 max-w-lg mx-auto w-full" onClick={(e) => e.stopPropagation()} style={{ animation: "slideUp 0.25s ease-out" }}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2"><ChevronUp className="h-5 w-5 text-red-400" />Qarzga Sotuv</h3>
-          <button onClick={onCancel} className="text-zinc-500 hover:text-white"><X className="h-5 w-5" /></button>
+          <h3 className="text-lg font-bold text-foreground flex items-center gap-2"><ChevronUp className="h-5 w-5 text-red-400" />Qarzga Sotuv</h3>
+          <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
         </div>
-        <div className="bg-zinc-800 rounded-xl p-3 flex justify-between mb-4">
-          <span className="text-zinc-400 text-sm">Qarz summasi:</span>
+        <div className="bg-muted rounded-xl p-3 flex justify-between mb-4">
+          <span className="text-muted-foreground text-sm">Qarz summasi:</span>
           <span className="text-xl font-bold text-red-400">{fmt(total)} so'm</span>
         </div>
         <div className="flex gap-2 mb-4">
-          <button onClick={() => setMode("existing")} className={`flex-1 py-2 rounded-lg text-sm font-medium ${mode === "existing" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400"}`}>Mavjud mijoz</button>
-          <button onClick={() => setMode("new")} className={`flex-1 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1 ${mode === "new" ? "bg-blue-600 text-white" : "bg-zinc-800 text-zinc-400"}`}><UserPlus className="h-4 w-4" />Yangi</button>
+          <button onClick={() => setMode("existing")} className={`flex-1 py-2 rounded-lg text-sm font-medium ${mode === "existing" ? "bg-blue-600 text-foreground" : "bg-muted text-muted-foreground"}`}>Mavjud mijoz</button>
+          <button onClick={() => setMode("new")} className={`flex-1 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1 ${mode === "new" ? "bg-blue-600 text-foreground" : "bg-muted text-muted-foreground"}`}><UserPlus className="h-4 w-4" />Yangi</button>
         </div>
         <div className="space-y-3">
           {mode === "existing" ? (
-            <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)} className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none">
+            <select value={selectedId} onChange={(e) => setSelectedId(e.target.value)} className="w-full bg-input border border-border text-foreground rounded-lg px-3 py-2 text-sm focus:outline-none">
               <option value="">— Mijozni tanlang —</option>
               {customers.map((c) => <option key={c.id} value={String(c.id)}>{c.name} {c.phone ? `(${c.phone})` : ""}</option>)}
             </select>
           ) : (
             <>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ism *" className="bg-zinc-800 border-zinc-700 text-white" />
-              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998901234567" className="bg-zinc-800 border-zinc-700 text-white" />
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ism *" className="bg-input border-border text-foreground" />
+              <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998901234567" className="bg-input border-border text-foreground" />
             </>
           )}
           <div>
             <Label className="text-zinc-300 text-sm">Qarz muddati</Label>
-            <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="bg-zinc-800 border-zinc-700 text-white mt-1" />
+            <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} className="bg-input border-border text-white mt-1" />
           </div>
           <Button onClick={handleConfirm} disabled={createCustomer.isPending} className="w-full bg-red-600 hover:bg-red-700 font-semibold">
             {createCustomer.isPending ? "Saqlanmoqda..." : "Qarzga Sotish"}
@@ -712,9 +712,9 @@ export default function AdminPos() {
   return (
     <div className="flex flex-col h-[calc(100vh-112px)] gap-0 overflow-hidden -m-6 md:-m-8">
       {/* Top bar */}
-      <div className="bg-zinc-950 border-b border-zinc-800 px-4 py-3 flex items-center gap-3">
+      <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3">
         <ShoppingBag className="h-5 w-5 text-blue-500 shrink-0" />
-        <h1 className="text-white font-bold text-lg">Sotuv Kassa</h1>
+        <h1 className="text-foreground font-bold text-lg">Sotuv Kassa</h1>
         {/* Active open order badge */}
         {activeOpenOrderId && (
           <span className="text-xs bg-red-900/50 text-red-300 border border-red-700 px-2 py-0.5 rounded-full font-medium">
@@ -726,7 +726,7 @@ export default function AdminPos() {
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ml-2 ${
             tableSelection.tableNumber
               ? "bg-blue-600/20 text-blue-400 border border-blue-600/40 hover:bg-blue-600/30"
-              : "bg-zinc-800 text-zinc-500 border border-zinc-700 hover:bg-zinc-700 hover:text-zinc-300"
+              : "bg-muted text-muted-foreground border border-border hover:bg-zinc-700 hover:text-zinc-300"
           }`}
         >
           <Table2 className="h-3.5 w-3.5" />
@@ -740,44 +740,44 @@ export default function AdminPos() {
                 setTableSelection({ roomId: null, roomName: null, tableId: null, tableNumber: null });
                 setActiveOpenOrderId(null);
               }}
-              className="ml-1 text-zinc-400 hover:text-white"
+              className="ml-1 text-muted-foreground hover:text-foreground"
             >
               <X className="h-3 w-3" />
             </button>
           )}
         </button>
-        <span className="text-zinc-500 text-sm ml-auto">{user?.venueName}</span>
+        <span className="text-muted-foreground text-sm ml-auto">{user?.venueName}</span>
       </div>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Search + Cart */}
         <div className="flex flex-col flex-1 overflow-hidden bg-zinc-900">
           {/* Search */}
-          <div className="p-4 border-b border-zinc-800 relative">
+          <div className="p-4 border-b border-border relative">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 ref={searchRef}
                 value={search}
                 onChange={(e) => { setSearch(e.target.value); setShowSuggestions(true); }}
                 onFocus={() => setShowSuggestions(true)}
                 placeholder="Mahsulot nomini yozing..."
-                className="pl-9 bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500 text-base"
+                className="pl-9 bg-input border-border text-white placeholder-zinc-500 text-base"
                 autoComplete="off"
               />
               {search && (
-                <button onClick={() => { setSearch(""); setShowSuggestions(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white">
+                <button onClick={() => { setSearch(""); setShowSuggestions(false); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute left-4 right-4 top-full mt-1 z-30 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl overflow-hidden">
+              <div className="absolute left-4 right-4 top-full mt-1 z-30 bg-input border border-border rounded-xl shadow-2xl overflow-hidden">
                 {suggestions.map((p) => (
                   <button key={p.id} onClick={() => addProduct(p)} className="w-full flex items-center justify-between px-4 py-3 hover:bg-zinc-700 transition-colors text-left">
                     <div>
-                      <p className="text-white font-medium">{p.name}</p>
-                      <p className="text-xs text-zinc-400">{p.category}</p>
+                      <p className="text-foreground font-medium">{p.name}</p>
+                      <p className="text-xs text-muted-foreground">{p.category}</p>
                     </div>
                     <span className="text-blue-400 font-semibold text-sm">{fmt(p.price)} so'm</span>
                   </button>
@@ -785,8 +785,8 @@ export default function AdminPos() {
               </div>
             )}
             {showSuggestions && search.length > 0 && suggestions.length === 0 && (
-              <div className="absolute left-4 right-4 top-full mt-1 z-30 bg-zinc-800 border border-zinc-700 rounded-xl shadow-xl px-4 py-3">
-                <p className="text-zinc-400 text-sm">"{search}" topilmadi</p>
+              <div className="absolute left-4 right-4 top-full mt-1 z-30 bg-input border border-border rounded-xl shadow-xl px-4 py-3">
+                <p className="text-muted-foreground text-sm">"{search}" topilmadi</p>
               </div>
             )}
           </div>
@@ -794,7 +794,7 @@ export default function AdminPos() {
           {/* Cart items */}
           <div className="flex-1 overflow-y-auto p-4" onClick={() => setShowSuggestions(false)}>
             {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-zinc-600">
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                 <ShoppingBag className="h-16 w-16 mb-3 opacity-30" />
                 <p className="text-lg">Savat bo'sh</p>
                 <p className="text-sm mt-1 text-zinc-700">Mahsulot qidiring va qo'shing</p>
@@ -804,7 +804,7 @@ export default function AdminPos() {
                 {cart.map((item, idx) => {
                   const lineTotal = itemTotal(item);
                   return (
-                    <div key={item.product.id} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3">
+                    <div key={item.product.id} className="bg-card border border-border rounded-xl p-3">
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex items-start gap-2">
                           {(item.product as any).imageUrl ? (
@@ -815,9 +815,9 @@ export default function AdminPos() {
                             </div>
                           )}
                           <div>
-                            <span className="text-xs text-zinc-600 mr-1">{idx + 1}.</span>
-                            <span className="text-white font-semibold text-sm">{item.product.name}</span>
-                            <span className="text-xs text-zinc-500 ml-2">{item.product.category}</span>
+                            <span className="text-xs text-muted-foreground mr-1">{idx + 1}.</span>
+                            <span className="text-foreground font-semibold text-sm">{item.product.name}</span>
+                            <span className="text-xs text-muted-foreground ml-2">{item.product.category}</span>
                           </div>
                         </div>
                         <button onClick={() => removeItem(item.product.id)} className="text-red-500 hover:bg-red-500/10 rounded p-1 ml-2">
@@ -825,26 +825,26 @@ export default function AdminPos() {
                         </button>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <div className="flex items-center bg-zinc-800 rounded-lg overflow-hidden">
-                          <button onClick={() => updateItem(item.product.id, { quantity: Math.max(1, item.quantity - 1) })} className="px-2 py-1.5 text-zinc-300 hover:bg-zinc-700">
+                        <div className="flex items-center bg-muted rounded-lg overflow-hidden">
+                          <button onClick={() => updateItem(item.product.id, { quantity: Math.max(1, item.quantity - 1) })} className="px-2 py-1.5 text-foreground hover:bg-zinc-700">
                             <Minus className="h-3.5 w-3.5" />
                           </button>
-                          <input type="number" value={item.quantity} onChange={(e) => updateItem(item.product.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })} className="w-10 text-center bg-transparent text-white text-sm font-semibold focus:outline-none" />
-                          <button onClick={() => updateItem(item.product.id, { quantity: item.quantity + 1 })} className="px-2 py-1.5 text-zinc-300 hover:bg-zinc-700">
+                          <input type="number" value={item.quantity} onChange={(e) => updateItem(item.product.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })} className="w-10 text-center bg-transparent text-foreground text-sm font-semibold focus:outline-none" />
+                          <button onClick={() => updateItem(item.product.id, { quantity: item.quantity + 1 })} className="px-2 py-1.5 text-foreground hover:bg-zinc-700">
                             <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>
-                        <select value={item.unit} onChange={(e) => updateItem(item.product.id, { unit: e.target.value as Unit })} className="bg-zinc-800 border-none text-zinc-300 text-sm rounded-lg px-2 py-1.5 focus:outline-none">
+                        <select value={item.unit} onChange={(e) => updateItem(item.product.id, { unit: e.target.value as Unit })} className="bg-zinc-800 border-none text-foreground text-sm rounded-lg px-2 py-1.5 focus:outline-none">
                           {UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
                         </select>
-                        <div className="flex items-center gap-1 bg-zinc-800 rounded-lg px-2 py-1.5">
-                          <Percent className="h-3.5 w-3.5 text-zinc-400" />
-                          <input type="number" value={item.discount} min={0} max={100} onChange={(e) => updateItem(item.product.id, { discount: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })} className="w-10 text-center bg-transparent text-zinc-300 text-sm focus:outline-none" placeholder="0" />
-                          <span className="text-zinc-500 text-xs">chegirma</span>
+                        <div className="flex items-center gap-1 bg-muted rounded-lg px-2 py-1.5">
+                          <Percent className="h-3.5 w-3.5 text-muted-foreground" />
+                          <input type="number" value={item.discount} min={0} max={100} onChange={(e) => updateItem(item.product.id, { discount: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })} className="w-10 text-center bg-transparent text-foreground text-sm focus:outline-none" placeholder="0" />
+                          <span className="text-muted-foreground text-xs">chegirma</span>
                         </div>
                         <div className="ml-auto text-right">
-                          {item.discount > 0 && <p className="text-xs text-zinc-500 line-through">{fmt(item.product.price * item.quantity)} so'm</p>}
-                          <p className="text-white font-bold">{fmt(lineTotal)} so'm</p>
+                          {item.discount > 0 && <p className="text-xs text-muted-foreground line-through">{fmt(item.product.price * item.quantity)} so'm</p>}
+                          <p className="text-foreground font-bold">{fmt(lineTotal)} so'm</p>
                         </div>
                       </div>
                     </div>
@@ -856,16 +856,16 @@ export default function AdminPos() {
         </div>
 
         {/* Right: Summary + Payment + Open Orders */}
-        <div className="w-72 flex flex-col bg-zinc-950 border-l border-zinc-800 overflow-hidden">
+        <div className="w-72 flex flex-col bg-card border-l border-border overflow-hidden">
           {/* Totals */}
-          <div className="p-4 border-b border-zinc-800 space-y-2">
-            <div className="flex justify-between text-sm text-zinc-400">
+          <div className="p-4 border-b border-border space-y-2">
+            <div className="flex justify-between text-sm text-muted-foreground">
               <span>Mahsulotlar:</span>
-              <span className="text-white">{cart.reduce((s, i) => s + i.quantity, 0)} ta</span>
+              <span className="text-foreground">{cart.reduce((s, i) => s + i.quantity, 0)} ta</span>
             </div>
             {totalDiscount > 0 && (
               <>
-                <div className="flex justify-between text-sm text-zinc-400">
+                <div className="flex justify-between text-sm text-muted-foreground">
                   <span>Chegirmasiz:</span><span className="text-zinc-300">{fmt(subtotal)} so'm</span>
                 </div>
                 <div className="flex justify-between text-sm text-green-500">
@@ -873,45 +873,45 @@ export default function AdminPos() {
                 </div>
               </>
             )}
-            <div className="flex justify-between text-xl font-bold border-t border-zinc-800 pt-2 mt-1">
-              <span className="text-zinc-200">Jami:</span>
-              <span className="text-white">{fmt(total)} so'm</span>
+            <div className="flex justify-between text-xl font-bold border-t border-border pt-2 mt-1">
+              <span className="text-foreground">Jami:</span>
+              <span className="text-foreground">{fmt(total)} so'm</span>
             </div>
           </div>
 
           {/* Payment buttons */}
-          <div className="p-4 space-y-2.5 border-b border-zinc-800">
-            <p className="text-xs text-zinc-500 uppercase tracking-wider font-medium">To'lov turi</p>
+          <div className="p-4 space-y-2.5 border-b border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-wider font-medium">To'lov turi</p>
             <button
               onClick={() => { if (!cart.length) return; placeOrder({ payType: "naxt", apiPayType: "cash" }); }}
               disabled={!cart.length || isPaying}
-              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-green-600 hover:bg-green-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-green-600 hover:bg-green-500 text-foreground" : "bg-muted text-muted-foreground cursor-not-allowed"}`}
             >
               💵 Naqd Pul
             </button>
             <button
               onClick={() => { if (!cart.length) return; placeOrder({ payType: "karta", apiPayType: "card" }); }}
               disabled={!cart.length || isPaying}
-              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-blue-600 hover:bg-blue-500 text-foreground" : "bg-muted text-muted-foreground cursor-not-allowed"}`}
             >
               💳 Karta
             </button>
             <button
               onClick={() => { if (!cart.length) return; setShowDebtPanel(true); }}
               disabled={!cart.length || isPaying}
-              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-red-600 hover:bg-red-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-red-600 hover:bg-red-500 text-foreground" : "bg-muted text-muted-foreground cursor-not-allowed"}`}
             >
               📝 Qarzga
             </button>
             <button
               onClick={() => { if (!cart.length) return; setShowSplitPanel(true); }}
               disabled={!cart.length || isPaying}
-              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-purple-600 hover:bg-purple-500 text-white" : "bg-zinc-800 text-zinc-600 cursor-not-allowed"}`}
+              className={`w-full py-3 rounded-xl font-bold text-base transition-all ${cart.length ? "bg-purple-600 hover:bg-purple-500 text-foreground" : "bg-muted text-muted-foreground cursor-not-allowed"}`}
             >
               🔀 Aralash
             </button>
             {cart.length > 0 && (
-              <button onClick={clearCart} className="w-full py-2 text-sm text-zinc-600 hover:text-red-400 transition-colors">
+              <button onClick={clearCart} className="w-full py-2 text-sm text-muted-foreground hover:text-red-400 transition-colors">
                 Savatni tozalash
               </button>
             )}
@@ -921,17 +921,17 @@ export default function AdminPos() {
           <div className="flex-1 overflow-y-auto">
             <div className="px-4 pt-3 pb-1 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <ClipboardList className="h-4 w-4 text-zinc-500" />
-                <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Ochiq Buyurtmalar</span>
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ochiq Buyurtmalar</span>
                 {(openOrders ?? []).length > 0 && (
-                  <span className="bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5 font-bold leading-none">
+                  <span className="bg-red-600 text-foreground text-xs rounded-full px-1.5 py-0.5 font-bold leading-none">
                     {(openOrders ?? []).length}
                   </span>
                 )}
               </div>
               <button
                 onClick={() => refetchOpenOrders()}
-                className="text-xs text-zinc-600 hover:text-zinc-300 transition-colors"
+                className="text-xs text-muted-foreground hover:text-zinc-300 transition-colors"
               >
                 ↺
               </button>
@@ -947,30 +947,30 @@ export default function AdminPos() {
                     className={`rounded-xl border p-3 transition-all ${
                       activeOpenOrderId === order.id
                         ? "border-blue-500 bg-blue-600/10"
-                        : "border-zinc-800 bg-zinc-900 hover:border-zinc-700"
+                        : "border-border bg-zinc-900 hover:border-border"
                     }`}
                   >
                     <div className="flex items-start justify-between mb-1.5">
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <Table2 className="h-3.5 w-3.5 text-zinc-400" />
-                          <span className="text-sm font-semibold text-white">
+                          <Table2 className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-sm font-semibold text-foreground">
                             Stol #{order.tableNumber ?? "?"}
                           </span>
                         </div>
                         {order.roomName && (
-                          <p className="text-xs text-zinc-500 mt-0.5">{order.roomName}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{order.roomName}</p>
                         )}
                         {order.waiterName && (
-                          <p className="text-xs text-zinc-600">{order.waiterName}</p>
+                          <p className="text-xs text-muted-foreground">{order.waiterName}</p>
                         )}
                       </div>
-                      <span className="text-sm font-bold text-white whitespace-nowrap">
+                      <span className="text-sm font-bold text-foreground whitespace-nowrap">
                         {fmt(order.totalAmount)} so'm
                       </span>
                     </div>
 
-                    <div className="text-xs text-zinc-600 mb-2">
+                    <div className="text-xs text-muted-foreground mb-2">
                       {order.items.length} mahsulot
                       {order.items.slice(0, 2).map((i) => ` · ${i.productName} ×${i.quantity}`).join("")}
                       {order.items.length > 2 && ` +${order.items.length - 2}`}
@@ -982,7 +982,7 @@ export default function AdminPos() {
                       className={`w-full py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                         activeOpenOrderId === order.id
                           ? "bg-blue-600 text-white hover:bg-blue-500"
-                          : "bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                          : "bg-zinc-800 text-foreground hover:bg-zinc-700"
                       }`}
                     >
                       {activeOpenOrderId === order.id ? "✓ Yuklandi" : "Yuklash"}
@@ -1033,29 +1033,29 @@ function TableSelectionPanel({
   return (
     <div className="fixed inset-0 z-40 flex flex-col justify-end" onClick={onCancel}>
       <div
-        className="bg-zinc-900 border-t border-zinc-700 rounded-t-2xl shadow-2xl max-w-2xl mx-auto w-full max-h-[80vh] flex flex-col"
+        className="bg-zinc-900 border-t border-border rounded-t-2xl shadow-2xl max-w-2xl mx-auto w-full max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: "slideUp 0.25s ease-out" }}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-800">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <div className="flex items-center gap-2">
             <Table2 className="h-5 w-5 text-blue-400" />
-            <h3 className="text-lg font-bold text-white">Xona va Stol tanlash</h3>
+            <h3 className="text-lg font-bold text-foreground">Xona va Stol tanlash</h3>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-xs text-zinc-500">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />Bo'sh</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block" />Band</span>
             </div>
-            <button onClick={onCancel} className="text-zinc-500 hover:text-white"><X className="h-5 w-5" /></button>
+            <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
           </div>
         </div>
         <div className="flex flex-1 overflow-hidden">
           {activeRooms.length > 0 && (
-            <div className="w-48 border-r border-zinc-800 overflow-y-auto py-2 shrink-0">
+            <div className="w-48 border-r border-border overflow-y-auto py-2 shrink-0">
               <button
                 onClick={() => setSelectedRoomId(null)}
-                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === null ? "bg-blue-600/10 text-blue-400 font-medium" : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`}
+                className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === null ? "bg-blue-600/10 text-blue-400 font-medium" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
               >
                 <Table2 className="h-4 w-4 shrink-0" />Barcha stollar
               </button>
@@ -1063,17 +1063,17 @@ function TableSelectionPanel({
                 <button
                   key={r.id}
                   onClick={() => setSelectedRoomId(r.id)}
-                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === r.id ? "bg-blue-600/10 text-blue-400 font-medium" : "text-zinc-400 hover:text-white hover:bg-zinc-800"}`}
+                  className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm transition-colors text-left ${selectedRoomId === r.id ? "bg-blue-600/10 text-blue-400 font-medium" : "text-muted-foreground hover:text-foreground hover:bg-accent"}`}
                 >
                   <DoorOpen className="h-4 w-4 shrink-0" />{r.name}
-                  <span className="ml-auto text-xs text-zinc-600">{(r.tables ?? []).filter((t) => t.isActive).length}</span>
+                  <span className="ml-auto text-xs text-muted-foreground">{(r.tables ?? []).filter((t) => t.isActive).length}</span>
                 </button>
               ))}
             </div>
           )}
           <div className="flex-1 overflow-y-auto p-4">
             {filteredTables.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-32 text-zinc-600">
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
                 <Table2 className="h-8 w-8 mb-2 opacity-30" />
                 <p className="text-sm">Stol topilmadi</p>
               </div>
@@ -1092,7 +1092,7 @@ function TableSelectionPanel({
                           ? "border-blue-500 bg-blue-600/20 text-blue-400"
                           : isOccupied
                           ? "border-red-600/60 bg-red-950/30 text-red-200 hover:border-red-500"
-                          : "border-zinc-700 bg-zinc-800 text-white hover:border-blue-600/50 hover:bg-zinc-700"
+                          : "border-border bg-zinc-800 text-white hover:border-blue-600/50 hover:bg-zinc-700"
                       }`}
                     >
                       {/* Status dot */}
@@ -1111,10 +1111,10 @@ function TableSelectionPanel({
           </div>
         </div>
         {current.tableNumber && (
-          <div className="px-5 py-3 border-t border-zinc-800">
+          <div className="px-5 py-3 border-t border-border">
             <button
               onClick={() => onSelect({ roomId: null, roomName: null, tableId: null, tableNumber: null })}
-              className="w-full py-2 text-sm text-zinc-500 hover:text-red-400 transition-colors"
+              className="w-full py-2 text-sm text-muted-foreground hover:text-red-400 transition-colors"
             >
               Stol tanlovini bekor qilish
             </button>

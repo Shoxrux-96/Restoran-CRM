@@ -63,8 +63,8 @@ export default function AdminCustomers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Mijozlar</h1>
-          <p className="text-zinc-400 mt-1">{customers?.length ?? 0} ta mijoz</p>
+          <h1 className="text-2xl font-bold text-foreground">Mijozlar</h1>
+          <p className="text-muted-foreground mt-1">{customers?.length ?? 0} ta mijoz</p>
         </div>
         <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700">
           <Plus className="h-4 w-4 mr-2" />
@@ -76,16 +76,16 @@ export default function AdminCustomers() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Ism yoki telefon bo'yicha qidirish..."
-        className="bg-zinc-950 border-zinc-800 text-white"
+        className="bg-card border-border text-foreground"
       />
 
       {isLoading ? (
-        <div className="text-zinc-400">Yuklanmoqda...</div>
+        <div className="text-muted-foreground">Yuklanmoqda...</div>
       ) : !filtered.length ? (
-        <Card className="bg-zinc-950 border-zinc-800">
+        <Card className="bg-card border-border">
           <CardContent className="py-16 text-center">
             <UsersRound className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
-            <p className="text-zinc-400">Mijoz topilmadi</p>
+            <p className="text-muted-foreground">Mijoz topilmadi</p>
           </CardContent>
         </Card>
       ) : (
@@ -93,16 +93,16 @@ export default function AdminCustomers() {
           {filtered.map((c) => {
             const debt = debtByCustomer[c.id] ?? 0;
             return (
-              <Card key={c.id} className="bg-zinc-950 border-zinc-800">
+              <Card key={c.id} className="bg-card border-border">
                 <CardContent className="py-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-blue-600/20 flex items-center justify-center text-sm font-bold text-blue-400">
                       {c.name.charAt(0)}
                     </div>
                     <div>
-                      <p className="font-medium text-white">{c.name}</p>
+                      <p className="font-medium text-foreground">{c.name}</p>
                       {c.phone && (
-                        <p className="text-sm text-zinc-400 flex items-center gap-1">
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
                           <Phone className="h-3 w-3" /> {c.phone}
                         </p>
                       )}
@@ -110,7 +110,7 @@ export default function AdminCustomers() {
                   </div>
                   {debt > 0 ? (
                     <div className="text-right">
-                      <p className="text-xs text-zinc-500">Qarz</p>
+                      <p className="text-xs text-muted-foreground">Qarz</p>
                       <p className="text-red-400 font-semibold">{fmt(debt)}</p>
                     </div>
                   ) : (
@@ -124,7 +124,7 @@ export default function AdminCustomers() {
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle>Yangi Mijoz Qo'shish</DialogTitle>
           </DialogHeader>
@@ -132,12 +132,12 @@ export default function AdminCustomers() {
             <div>
               <Label>Ism</Label>
               <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="Mijoz ismi" className="bg-zinc-800 border-zinc-700 mt-1" />
+                placeholder="Mijoz ismi" className="bg-input border-border mt-1" />
             </div>
             <div>
               <Label>Telefon (ixtiyoriy)</Label>
               <Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+998901234567" className="bg-zinc-800 border-zinc-700 mt-1" />
+                placeholder="+998901234567" className="bg-input border-border mt-1" />
             </div>
           </div>
           <DialogFooter>

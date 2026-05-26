@@ -229,8 +229,8 @@ export default function AdminRooms() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Xonalar va Stollar</h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Xonalar va Stollar</h1>
+          <p className="text-muted-foreground text-sm mt-1">
             {rooms.length} ta xona · {allTables.length} ta stol
             {occupiedCount > 0 && (
               <span className="ml-2 text-red-400 font-medium">{occupiedCount} ta band</span>
@@ -240,13 +240,13 @@ export default function AdminRooms() {
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="border-zinc-700 text-zinc-300 hover:bg-zinc-800"
+            className="border-border text-foreground hover:bg-accent"
             onClick={() => openCreateTable(null)}
           >
             <Table2 className="h-4 w-4 mr-2" />
             Stol qo'shish
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={openCreateRoom}>
+          <Button className="bg-blue-600 hover:bg-blue-700 text-foreground" onClick={openCreateRoom}>
             <Plus className="h-4 w-4 mr-2" />
             Xona qo'shish
           </Button>
@@ -254,7 +254,7 @@ export default function AdminRooms() {
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-xs text-zinc-500">
+      <div className="flex items-center gap-4 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" />Bo'sh stol
         </span>
@@ -264,13 +264,13 @@ export default function AdminRooms() {
       </div>
 
       {isLoading ? (
-        <div className="text-zinc-500 text-center py-16">Yuklanmoqda...</div>
+        <div className="text-muted-foreground text-center py-16">Yuklanmoqda...</div>
       ) : rooms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-zinc-600 border border-dashed border-zinc-800 rounded-2xl">
+        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground border border-dashed border-border rounded-2xl">
           <DoorOpen className="h-16 w-16 mb-3 opacity-30" />
           <p className="text-lg font-medium">Xona yo'q</p>
           <p className="text-sm mt-1">Birinchi xonangizni qo'shing</p>
-          <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-white" onClick={openCreateRoom}>
+          <Button className="mt-4 bg-blue-600 hover:bg-blue-700 text-foreground" onClick={openCreateRoom}>
             <Plus className="h-4 w-4 mr-2" />
             Xona qo'shish
           </Button>
@@ -284,7 +284,7 @@ export default function AdminRooms() {
             return (
               <div
                 key={room.id}
-                className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden"
+                className="bg-card border border-border rounded-2xl overflow-hidden"
               >
                 {/* Room header */}
                 <div className="flex items-center gap-3 px-4 py-3">
@@ -293,18 +293,18 @@ export default function AdminRooms() {
                     className="flex items-center gap-2 flex-1 text-left"
                   >
                     {isOpen ? (
-                      <ChevronDown className="h-4 w-4 text-zinc-400" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="h-4 w-4 text-zinc-400" />
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     )}
                     <DoorOpen className="h-4 w-4 text-blue-400" />
-                    <span className="font-semibold text-white">{room.name}</span>
+                    <span className="font-semibold text-foreground">{room.name}</span>
                     {room.description && (
-                      <span className="text-xs text-zinc-500 ml-1">— {room.description}</span>
+                      <span className="text-xs text-muted-foreground ml-1">— {room.description}</span>
                     )}
                     <Badge
                       variant="outline"
-                      className="ml-2 text-xs border-zinc-700 text-zinc-400"
+                      className="ml-2 text-xs border-border text-muted-foreground"
                     >
                       {tables.length} stol
                     </Badge>
@@ -330,7 +330,7 @@ export default function AdminRooms() {
                       variant="ghost"
                       size="sm"
                       onClick={() => openCreateTable(room.id)}
-                      className="text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 px-2"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent h-8 px-2"
                     >
                       <Plus className="h-3.5 w-3.5 mr-1" />
                       Stol
@@ -339,7 +339,7 @@ export default function AdminRooms() {
                       variant="ghost"
                       size="sm"
                       onClick={() => openEditRoom(room)}
-                      className="text-zinc-400 hover:text-white hover:bg-zinc-800 h-8 w-8 p-0"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent h-8 w-8 p-0"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
@@ -356,15 +356,15 @@ export default function AdminRooms() {
 
                 {/* Tables grid */}
                 {isOpen && (
-                  <div className="border-t border-zinc-800 px-4 py-4">
+                  <div className="border-t border-border px-4 py-4">
                     {tables.length === 0 ? (
-                      <div className="text-center py-6 text-zinc-600">
+                      <div className="text-center py-6 text-muted-foreground">
                         <Table2 className="h-8 w-8 mx-auto mb-2 opacity-30" />
                         <p className="text-sm">Stol yo'q</p>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="mt-3 border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                          className="mt-3 border-border text-muted-foreground hover:bg-accent"
                           onClick={() => openCreateTable(room.id)}
                         >
                           <Plus className="h-3.5 w-3.5 mr-1" />
@@ -386,7 +386,7 @@ export default function AdminRooms() {
                           ))}
                         <button
                           onClick={() => openCreateTable(room.id)}
-                          className="flex flex-col items-center justify-center h-28 rounded-xl border-2 border-dashed border-zinc-700 text-zinc-600 hover:border-blue-600 hover:text-blue-500 transition-colors"
+                          className="flex flex-col items-center justify-center h-28 rounded-xl border-2 border-dashed border-border text-muted-foreground hover:border-blue-600 hover:text-blue-500 transition-colors"
                         >
                           <Plus className="h-5 w-5 mb-1" />
                           <span className="text-xs">Qo'shish</span>
@@ -401,11 +401,11 @@ export default function AdminRooms() {
 
           {/* Unassigned tables */}
           {unassignedTables.length > 0 && (
-            <div className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-800">
-                <Table2 className="h-4 w-4 text-zinc-500" />
-                <span className="font-medium text-zinc-400">Xonasiz stollar</span>
-                <Badge variant="outline" className="text-xs border-zinc-700 text-zinc-500">
+            <div className="bg-card border border-border rounded-2xl overflow-hidden">
+              <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
+                <Table2 className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium text-muted-foreground">Xonasiz stollar</span>
+                <Badge variant="outline" className="text-xs border-border text-muted-foreground">
                   {unassignedTables.length} ta
                 </Badge>
               </div>
@@ -429,7 +429,7 @@ export default function AdminRooms() {
 
       {/* Room Modal */}
       <Dialog open={roomModal} onOpenChange={setRoomModal}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle>{editingRoom ? "Xonani tahrirlash" : "Yangi xona"}</DialogTitle>
           </DialogHeader>
@@ -440,7 +440,7 @@ export default function AdminRooms() {
                 value={roomForm.name}
                 onChange={(e) => setRoomForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="Masalan: Asosiy zal, VIP xona..."
-                className="mt-1.5 bg-zinc-800 border-zinc-700 text-white"
+                className="mt-1.5 bg-input border-border text-foreground"
               />
             </div>
             <div>
@@ -449,18 +449,18 @@ export default function AdminRooms() {
                 value={roomForm.description}
                 onChange={(e) => setRoomForm((f) => ({ ...f, description: e.target.value }))}
                 placeholder="Xona haqida qo'shimcha ma'lumot"
-                className="mt-1.5 bg-zinc-800 border-zinc-700 text-white"
+                className="mt-1.5 bg-input border-border text-foreground"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRoomModal(false)} className="border-zinc-700 text-zinc-300">
+            <Button variant="outline" onClick={() => setRoomModal(false)} className="border-border text-foreground">
               Bekor qilish
             </Button>
             <Button
               onClick={handleSaveRoom}
               disabled={createRoom.isPending || updateRoom.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-foreground"
             >
               {editingRoom ? "Saqlash" : "Qo'shish"}
             </Button>
@@ -470,7 +470,7 @@ export default function AdminRooms() {
 
       {/* Table Modal */}
       <Dialog open={tableModal} onOpenChange={setTableModal}>
-        <DialogContent className="bg-zinc-900 border-zinc-800 text-white">
+        <DialogContent className="bg-card border-border text-foreground">
           <DialogHeader>
             <DialogTitle>{editingTable ? "Stolni tahrirlash" : "Yangi stol"}</DialogTitle>
           </DialogHeader>
@@ -483,7 +483,7 @@ export default function AdminRooms() {
                   value={tableForm.number}
                   onChange={(e) => setTableForm((f) => ({ ...f, number: e.target.value }))}
                   min={1}
-                  className="mt-1.5 bg-zinc-800 border-zinc-700 text-white"
+                  className="mt-1.5 bg-input border-border text-foreground"
                 />
               </div>
               <div>
@@ -493,7 +493,7 @@ export default function AdminRooms() {
                   value={tableForm.capacity}
                   onChange={(e) => setTableForm((f) => ({ ...f, capacity: e.target.value }))}
                   min={1}
-                  className="mt-1.5 bg-zinc-800 border-zinc-700 text-white"
+                  className="mt-1.5 bg-input border-border text-foreground"
                 />
               </div>
             </div>
@@ -503,7 +503,7 @@ export default function AdminRooms() {
                 value={tableForm.name}
                 onChange={(e) => setTableForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder="Masalan: Burchak stoli, Terrasa..."
-                className="mt-1.5 bg-zinc-800 border-zinc-700 text-white"
+                className="mt-1.5 bg-input border-border text-foreground"
               />
             </div>
             <div>
@@ -511,7 +511,7 @@ export default function AdminRooms() {
               <select
                 value={tableForm.roomId}
                 onChange={(e) => setTableForm((f) => ({ ...f, roomId: e.target.value }))}
-                className="w-full mt-1.5 bg-zinc-800 border border-zinc-700 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                className="w-full mt-1.5 bg-input border border-border text-foreground rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
               >
                 <option value="">— Xona tanlang (ixtiyoriy) —</option>
                 {rooms.map((r) => (
@@ -523,13 +523,13 @@ export default function AdminRooms() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setTableModal(false)} className="border-zinc-700 text-zinc-300">
+            <Button variant="outline" onClick={() => setTableModal(false)} className="border-border text-foreground">
               Bekor qilish
             </Button>
             <Button
               onClick={handleSaveTable}
               disabled={createTable.isPending || updateTable.isPending}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-foreground"
             >
               {editingTable ? "Saqlash" : "Qo'shish"}
             </Button>
@@ -558,10 +558,10 @@ function TableCard({
     <div
       className={`relative group flex flex-col items-center justify-center h-28 rounded-xl border-2 transition-all ${
         !table.isActive
-          ? "border-zinc-800 bg-zinc-950 opacity-50"
+          ? "border-border bg-zinc-950 opacity-50"
           : isOccupied
           ? "border-red-500/60 bg-red-950/20"
-          : "border-zinc-700 bg-zinc-900 hover:border-blue-600/60"
+          : "border-border bg-zinc-900 hover:border-blue-600/60"
       }`}
     >
       {/* Occupation status dot */}
@@ -577,10 +577,10 @@ function TableCard({
         #{table.number}
       </span>
       {table.name && (
-        <span className="text-xs text-zinc-400 mt-0.5 px-1 truncate max-w-full">{table.name}</span>
+        <span className="text-xs text-muted-foreground mt-0.5 px-1 truncate max-w-full">{table.name}</span>
       )}
       {table.capacity && (
-        <div className="flex items-center gap-1 text-zinc-500 mt-1">
+        <div className="flex items-center gap-1 text-muted-foreground mt-1">
           <Users className="h-3 w-3" />
           <span className="text-xs">{table.capacity}</span>
         </div>
@@ -595,13 +595,13 @@ function TableCard({
       <div className="absolute inset-0 rounded-xl bg-zinc-900/95 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
         <button
           onClick={onEdit}
-          className="p-1.5 rounded-lg bg-zinc-800 hover:bg-blue-600 text-zinc-300 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg bg-zinc-800 hover:bg-blue-600 text-foreground hover:text-foreground transition-colors"
         >
           <Pencil className="h-3.5 w-3.5" />
         </button>
         <button
           onClick={onToggle}
-          className="p-1.5 rounded-lg bg-zinc-800 hover:bg-yellow-600 text-zinc-300 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg bg-zinc-800 hover:bg-yellow-600 text-foreground hover:text-foreground transition-colors"
         >
           <Switch
             checked={table.isActive}
@@ -611,7 +611,7 @@ function TableCard({
         </button>
         <button
           onClick={onDelete}
-          className="p-1.5 rounded-lg bg-zinc-800 hover:bg-red-600 text-zinc-300 hover:text-white transition-colors"
+          className="p-1.5 rounded-lg bg-zinc-800 hover:bg-red-600 text-foreground hover:text-foreground transition-colors"
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
