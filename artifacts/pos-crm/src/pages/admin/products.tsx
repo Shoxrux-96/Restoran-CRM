@@ -372,13 +372,13 @@ export default function AdminProducts() {
                         const canvas = document.createElement("canvas");
                         const img = new Image();
                         img.onload = () => {
-                          const MAX = 500;
+                          const MAX = 240;
                           let w = img.width, h = img.height;
                           if (w > h) { if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; } }
                           else { if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; } }
                           canvas.width = w; canvas.height = h;
                           canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
-                          const dataUrl = canvas.toDataURL("image/jpeg", 0.75);
+                          const dataUrl = canvas.toDataURL("image/jpeg", 0.55);
                           setForm((f) => ({ ...f, imageUrl: dataUrl }));
                           URL.revokeObjectURL(img.src);
                         };

@@ -64,7 +64,7 @@ router.post("/venues/:venueId/waiters", requireAuth, async (req, res): Promise<v
     return;
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 8);
   const [waiter] = await db.insert(usersTable).values({
     username: username.trim(),
     passwordHash,

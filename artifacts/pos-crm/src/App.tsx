@@ -25,7 +25,14 @@ import WaiterTables from "@/pages/waiter/tables";
 import WaiterOrder from "@/pages/waiter/order";
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 60_000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    },
+  },
 });
 
 function ProtectedRoute({

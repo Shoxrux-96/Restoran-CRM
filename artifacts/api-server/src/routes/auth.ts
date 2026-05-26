@@ -105,7 +105,7 @@ router.post("/users", requireAuth, async (req, res): Promise<void> => {
     res.status(400).json({ error: "username, password, role required" });
     return;
   }
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 8);
   const [user] = await db
     .insert(usersTable)
     .values({ username, passwordHash, name: name ?? null, role: role as "owner" | "admin", venueId: venueId ?? null })
