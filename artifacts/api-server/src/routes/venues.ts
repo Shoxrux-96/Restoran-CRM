@@ -34,11 +34,15 @@ router.post("/venues", requireAuth, async (req, res): Promise<void> => {
     res.status(403).json({ error: "Owner access required" });
     return;
   }
-  const { name, type, address, phone } = req.body as {
+  const { name, type, address, phone, email, instagram, telegram, facebook } = req.body as {
     name?: string;
     type?: string;
     address?: string;
     phone?: string;
+    email?: string;
+    instagram?: string;
+    telegram?: string;
+    facebook?: string;
   };
   if (!name || !type) {
     res.status(400).json({ error: "name and type required" });
@@ -46,7 +50,7 @@ router.post("/venues", requireAuth, async (req, res): Promise<void> => {
   }
   const [venue] = await db
     .insert(venuesTable)
-    .values({ name, type: type as "cafe" | "restaurant", address: address ?? null, phone: phone ?? null })
+    .values({ name, type: type as "cafe" | "restaurant", address: address ?? null, phone: phone ?? null, email: email ?? null, instagram: instagram ?? null, telegram: telegram ?? null, facebook: facebook ?? null })
     .returning();
   res.status(201).json({
     id: venue.id,
@@ -54,6 +58,10 @@ router.post("/venues", requireAuth, async (req, res): Promise<void> => {
     type: venue.type,
     address: venue.address,
     phone: venue.phone,
+    email: venue.email,
+    instagram: venue.instagram,
+    telegram: venue.telegram,
+    facebook: venue.facebook,
     adminId: venue.adminId,
     adminName: null,
     createdAt: venue.createdAt.toISOString(),
@@ -78,6 +86,10 @@ router.get("/venues/:id", requireAuth, async (req, res): Promise<void> => {
     type: venue.type,
     address: venue.address,
     phone: venue.phone,
+    email: venue.email,
+    instagram: venue.instagram,
+    telegram: venue.telegram,
+    facebook: venue.facebook,
     adminId: venue.adminId,
     adminName,
     createdAt: venue.createdAt.toISOString(),
@@ -91,11 +103,15 @@ router.patch("/venues/:id", requireAuth, async (req, res): Promise<void> => {
     return;
   }
   const id = parseId(req.params.id);
-  const { name, type, address, phone } = req.body as {
+  const { name, type, address, phone, email, instagram, telegram, facebook } = req.body as {
     name?: string;
     type?: string;
     address?: string | null;
     phone?: string | null;
+    email?: string | null;
+    instagram?: string | null;
+    telegram?: string | null;
+    facebook?: string | null;
   };
   const [venue] = await db
     .update(venuesTable)
@@ -104,6 +120,10 @@ router.patch("/venues/:id", requireAuth, async (req, res): Promise<void> => {
       ...(type !== undefined && { type: type as "cafe" | "restaurant" }),
       ...(address !== undefined && { address }),
       ...(phone !== undefined && { phone }),
+      ...(email !== undefined && { email }),
+      ...(instagram !== undefined && { instagram }),
+      ...(telegram !== undefined && { telegram }),
+      ...(facebook !== undefined && { facebook }),
     })
     .where(eq(venuesTable.id, id))
     .returning();
@@ -117,6 +137,10 @@ router.patch("/venues/:id", requireAuth, async (req, res): Promise<void> => {
     type: venue.type,
     address: venue.address,
     phone: venue.phone,
+    email: venue.email,
+    instagram: venue.instagram,
+    telegram: venue.telegram,
+    facebook: venue.facebook,
     adminId: venue.adminId,
     adminName: null,
     createdAt: venue.createdAt.toISOString(),

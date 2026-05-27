@@ -74,6 +74,14 @@ export interface Venue {
   /** @nullable */
   phone?: string | null;
   /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  instagram?: string | null;
+  /** @nullable */
+  telegram?: string | null;
+  /** @nullable */
+  facebook?: string | null;
+  /** @nullable */
   adminId?: number | null;
   /** @nullable */
   adminName?: string | null;
@@ -93,6 +101,10 @@ export interface VenueInput {
   type: VenueInputType;
   address?: string;
   phone?: string;
+  email?: string;
+  instagram?: string;
+  telegram?: string;
+  facebook?: string;
 }
 
 export type VenueUpdateType = typeof VenueUpdateType[keyof typeof VenueUpdateType];
@@ -110,6 +122,14 @@ export interface VenueUpdate {
   address?: string | null;
   /** @nullable */
   phone?: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  instagram?: string | null;
+  /** @nullable */
+  telegram?: string | null;
+  /** @nullable */
+  facebook?: string | null;
 }
 
 export interface AdminAssignInput {

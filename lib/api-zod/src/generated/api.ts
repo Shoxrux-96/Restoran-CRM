@@ -61,6 +61,10 @@ export const ListVenuesResponseItem = zod.object({
   "type": zod.enum(['cafe', 'restaurant']),
   "address": zod.string().nullish(),
   "phone": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "instagram": zod.string().nullish(),
+  "telegram": zod.string().nullish(),
+  "facebook": zod.string().nullish(),
   "adminId": zod.number().nullish(),
   "adminName": zod.string().nullish(),
   "createdAt": zod.string().optional()
@@ -75,7 +79,11 @@ export const CreateVenueBody = zod.object({
   "name": zod.string(),
   "type": zod.enum(['cafe', 'restaurant']),
   "address": zod.string().optional(),
-  "phone": zod.string().optional()
+  "phone": zod.string().optional(),
+  "email": zod.string().optional(),
+  "instagram": zod.string().optional(),
+  "telegram": zod.string().optional(),
+  "facebook": zod.string().optional()
 })
 
 
@@ -92,6 +100,10 @@ export const GetVenueResponse = zod.object({
   "type": zod.enum(['cafe', 'restaurant']),
   "address": zod.string().nullish(),
   "phone": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "instagram": zod.string().nullish(),
+  "telegram": zod.string().nullish(),
+  "facebook": zod.string().nullish(),
   "adminId": zod.number().nullish(),
   "adminName": zod.string().nullish(),
   "createdAt": zod.string().optional()
@@ -109,7 +121,11 @@ export const UpdateVenueBody = zod.object({
   "name": zod.string().optional(),
   "type": zod.enum(['cafe', 'restaurant']).optional(),
   "address": zod.string().nullish(),
-  "phone": zod.string().nullish()
+  "phone": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "instagram": zod.string().nullish(),
+  "telegram": zod.string().nullish(),
+  "facebook": zod.string().nullish()
 })
 
 export const UpdateVenueResponse = zod.object({
@@ -118,6 +134,10 @@ export const UpdateVenueResponse = zod.object({
   "type": zod.enum(['cafe', 'restaurant']),
   "address": zod.string().nullish(),
   "phone": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "instagram": zod.string().nullish(),
+  "telegram": zod.string().nullish(),
+  "facebook": zod.string().nullish(),
   "adminId": zod.number().nullish(),
   "adminName": zod.string().nullish(),
   "createdAt": zod.string().optional()

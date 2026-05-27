@@ -8,6 +8,10 @@ export const venuesTable = pgTable("venues", {
   type: text("type", { enum: ["cafe", "restaurant"] }).notNull().default("cafe"),
   address: text("address"),
   phone: text("phone"),
+  email: text("email"),
+  instagram: text("instagram"),
+  telegram: text("telegram"),
+  facebook: text("facebook"),
   adminId: integer("admin_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

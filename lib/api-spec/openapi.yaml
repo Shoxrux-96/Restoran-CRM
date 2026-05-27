@@ -847,6 +847,14 @@ components:
           type: ["string", "null"]
         phone:
           type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        instagram:
+          type: ["string", "null"]
+        telegram:
+          type: ["string", "null"]
+        facebook:
+          type: ["string", "null"]
         adminId:
           type: ["integer", "null"]
         adminName:
@@ -867,6 +875,14 @@ components:
           type: string
         phone:
           type: string
+        email:
+          type: string
+        instagram:
+          type: string
+        telegram:
+          type: string
+        facebook:
+          type: string
 
     VenueUpdate:
       type: object
@@ -879,6 +895,14 @@ components:
         address:
           type: ["string", "null"]
         phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        instagram:
+          type: ["string", "null"]
+        telegram:
+          type: ["string", "null"]
+        facebook:
           type: ["string", "null"]
 
     AdminAssignInput:

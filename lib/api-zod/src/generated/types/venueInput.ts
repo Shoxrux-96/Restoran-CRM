@@ -12,4 +12,8 @@ export interface VenueInput {
   type: VenueInputType;
   address?: string;
   phone?: string;
+  email?: string;
+  instagram?: string;
+  telegram?: string;
+  facebook?: string;
 }

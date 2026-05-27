@@ -14,4 +14,12 @@ export interface VenueUpdate {
   address?: string | null;
   /** @nullable */
   phone?: string | null;
+  /** @nullable */
+  email?: string | null;
+  /** @nullable */
+  instagram?: string | null;
+  /** @nullable */
+  telegram?: string | null;
+  /** @nullable */
+  facebook?: string | null;
 }
