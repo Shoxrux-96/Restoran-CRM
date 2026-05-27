@@ -107,7 +107,7 @@ export default function AdminDebts() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Card className="bg-card border-border">
           <CardContent className="pt-4 pb-3">
             <div className="flex items-center justify-between mb-1">
@@ -139,12 +139,12 @@ export default function AdminDebts() {
 
       {/* Filters + Search */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 flex-wrap">
           {filterBtns.map((f) => (
             <button
               key={f.key}
               onClick={() => setFilter(f.key)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors active:scale-95 ${
                 filter === f.key
                   ? "bg-blue-600 text-foreground"
                   : "bg-muted text-muted-foreground hover:text-foreground"

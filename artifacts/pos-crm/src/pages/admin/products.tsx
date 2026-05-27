@@ -165,14 +165,14 @@ export default function AdminProducts() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Mahsulotlar</h1>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Mahsulotlar</h1>
           <p className="text-muted-foreground text-sm mt-0.5">{products?.length ?? 0} ta mahsulot</p>
         </div>
-        <Button onClick={openCreate} className="bg-blue-600 hover:bg-blue-700 gap-2">
+        <Button onClick={openCreate} className="bg-blue-600 hover:bg-blue-700 gap-2 shrink-0" size="sm">
           <Plus className="h-4 w-4" />
-          Yangi Mahsulot
+          <span className="hidden sm:inline">Yangi</span> Mahsulot
         </Button>
       </div>
 

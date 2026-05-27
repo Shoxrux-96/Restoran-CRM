@@ -708,13 +708,14 @@ export default function AdminPos() {
   };
 
   const isPaying = createOrder.isPending || payOpenOrder.isPending;
+  const [mobileTab, setMobileTab] = useState<"cart" | "payment">("cart");
 
   return (
-    <div className="flex flex-col h-[calc(100vh-112px)] gap-0 overflow-hidden -m-6 md:-m-8">
+    <div className="flex flex-col h-[calc(100svh-56px)] md:h-[calc(100vh-0px)] gap-0 overflow-hidden -m-4 md:-m-6 lg:-m-8">
       {/* Top bar */}
-      <div className="bg-card border-b border-border px-4 py-3 flex items-center gap-3">
+      <div className="bg-card border-b border-border px-3 md:px-4 py-2.5 flex items-center gap-2 md:gap-3">
         <ShoppingBag className="h-5 w-5 text-blue-500 shrink-0" />
-        <h1 className="text-foreground font-bold text-lg">Sotuv Kassa</h1>
+        <h1 className="text-foreground font-bold text-base md:text-lg">Sotuv Kassa</h1>
         {/* Active open order badge */}
         {activeOpenOrderId && (
           <span className="text-xs bg-red-900/50 text-red-300 border border-red-700 px-2 py-0.5 rounded-full font-medium">
@@ -749,9 +750,27 @@ export default function AdminPos() {
         <span className="text-muted-foreground text-sm ml-auto">{user?.venueName}</span>
       </div>
 
+      {/* Mobile tabs */}
+      <div className="flex md:hidden border-b border-border bg-card shrink-0">
+        <button
+          onClick={() => setMobileTab("cart")}
+          className={`flex-1 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${mobileTab === "cart" ? "text-blue-400 border-b-2 border-blue-500" : "text-muted-foreground"}`}
+        >
+          <ShoppingBag className="h-4 w-4" />
+          Savat {cart.length > 0 && <span className="bg-blue-600 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">{cart.reduce((s, i) => s + i.quantity, 0)}</span>}
+        </button>
+        <button
+          onClick={() => setMobileTab("payment")}
+          className={`flex-1 py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 ${mobileTab === "payment" ? "text-green-400 border-b-2 border-green-500" : "text-muted-foreground"}`}
+        >
+          💵 To'lov
+          {cart.length > 0 && <span className="text-xs font-bold text-foreground bg-muted px-2 py-0.5 rounded-full">{fmt(total)}</span>}
+        </button>
+      </div>
+
       <div className="flex flex-1 overflow-hidden">
         {/* Left: Search + Cart */}
-        <div className="flex flex-col flex-1 overflow-hidden bg-zinc-900">
+        <div className={`flex flex-col flex-1 overflow-hidden bg-zinc-900 ${mobileTab === "payment" ? "hidden md:flex" : "flex"}`}>
           {/* Search */}
           <div className="p-4 border-b border-border relative">
             <div className="relative">
@@ -856,7 +875,7 @@ export default function AdminPos() {
         </div>
 
         {/* Right: Summary + Payment + Open Orders */}
-        <div className="w-72 flex flex-col bg-card border-l border-border overflow-hidden">
+        <div className={`flex flex-col bg-card border-l border-border overflow-hidden w-full md:w-72 md:flex ${mobileTab === "cart" ? "hidden md:flex" : "flex"}`}>
           {/* Totals */}
           <div className="p-4 border-b border-border space-y-2">
             <div className="flex justify-between text-sm text-muted-foreground">

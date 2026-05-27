@@ -401,13 +401,6 @@ export default function Home() {
               <li>
                 <a href="#features" className="hover:text-foreground transition-colors">Imkoniyatlar</a>
               </li>
-              <li className="pt-3 border-t border-border/50">
-                <span className="text-xs text-muted-foreground/60">Demo hisob:</span>
-                <div className="mt-1.5 space-y-1">
-                  <p className="text-xs font-mono bg-zinc-900 px-2 py-1 rounded text-muted-foreground">owner / admin123</p>
-                  <p className="text-xs font-mono bg-zinc-900 px-2 py-1 rounded text-muted-foreground">cafe_admin / admin123</p>
-                </div>
-              </li>
             </ul>
           </div>
 

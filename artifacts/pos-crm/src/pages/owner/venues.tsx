@@ -59,14 +59,14 @@ export default function OwnerVenues() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Filiallar</h1>
-          <p className="text-muted-foreground mt-1">Barcha kafe va restoranlar</p>
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Filiallar</h1>
+          <p className="text-muted-foreground mt-1 text-sm">Barcha kafe va restoranlar</p>
         </div>
-        <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="h-4 w-4 mr-2" />
-          Yangi Filial
+        <Button onClick={() => setOpen(true)} className="bg-blue-600 hover:bg-blue-700 shrink-0" size="sm">
+          <Plus className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Yangi Filial</span>
         </Button>
       </div>
 

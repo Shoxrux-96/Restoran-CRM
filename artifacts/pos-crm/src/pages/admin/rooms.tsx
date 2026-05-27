@@ -227,9 +227,9 @@ export default function AdminRooms() {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Xonalar va Stollar</h1>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">Xonalar va Stollar</h1>
           <p className="text-muted-foreground text-sm mt-1">
             {rooms.length} ta xona · {allTables.length} ta stol
             {occupiedCount > 0 && (
@@ -237,18 +237,19 @@ export default function AdminRooms() {
             )}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0 flex-wrap justify-end">
           <Button
             variant="outline"
+            size="sm"
             className="border-border text-foreground hover:bg-accent"
             onClick={() => openCreateTable(null)}
           >
-            <Table2 className="h-4 w-4 mr-2" />
-            Stol qo'shish
+            <Table2 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Stol qo'shish</span>
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-foreground" onClick={openCreateRoom}>
-            <Plus className="h-4 w-4 mr-2" />
-            Xona qo'shish
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-foreground" onClick={openCreateRoom}>
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Xona qo'shish</span>
           </Button>
         </div>
       </div>

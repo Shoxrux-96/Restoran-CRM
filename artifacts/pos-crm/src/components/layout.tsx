@@ -1,19 +1,12 @@
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { useLogout } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
-  LayoutDashboard,
-  Store,
-  Users,
-  MonitorSmartphone,
-  Package,
-  Receipt,
-  LogOut,
-  DoorOpen,
-  BarChart3,
-  Table2,
+  LayoutDashboard, Store, Users, MonitorSmartphone, Package,
+  Receipt, LogOut, DoorOpen, BarChart3, Table2, Menu, X,
 } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -21,13 +14,18 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const logoutMutation = useLogout();
   const userRole = (user?.role as string) ?? "";
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  useEffect(() => { setSidebarOpen(false); }, [location]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === "Escape") setSidebarOpen(false); };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, []);
 
   const handleLogout = () => {
-    logoutMutation.mutate(undefined, {
-      onSuccess: () => {
-        logout();
-      },
-    });
+    logoutMutation.mutate(undefined, { onSuccess: () => logout() });
   };
 
   const ownerLinks = [
@@ -51,80 +49,126 @@ export function Layout({ children }: { children: React.ReactNode }) {
   ];
 
   const links =
-    userRole === "owner"
-      ? ownerLinks
-      : userRole === "waiter"
-      ? waiterLinks
-      : adminLinks;
+    userRole === "owner" ? ownerLinks :
+    userRole === "waiter" ? waiterLinks :
+    adminLinks;
 
   const roleLabel =
-    userRole === "owner" ? "Egasi" : userRole === "waiter" ? "Afitsiant" : "Admin";
+    userRole === "owner" ? "Egasi" :
+    userRole === "waiter" ? "Afitsiant" : "Admin";
+
+  const SidebarContent = () => (
+    <>
+      <div className="p-5 flex items-start justify-between border-b border-border">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white shrink-0">R</div>
+            RestoCRM
+          </h1>
+          {user?.venueName && (
+            <p className="text-xs text-muted-foreground mt-1.5 truncate max-w-[170px]">{user.venueName}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <ThemeToggle className="text-muted-foreground hover:text-foreground" />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {links.map((link) => {
+          const isActive = location === link.href || location.startsWith(`${link.href}/`);
+          return (
+            <Link key={link.href} href={link.href} className="block">
+              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-sm ${
+                isActive
+                  ? "bg-blue-600/10 text-blue-500 font-medium"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
+              }`}>
+                <link.icon className="h-4 w-4 shrink-0" />
+                {link.label}
+              </div>
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 border-t border-border">
+        <div className="flex items-center gap-3 px-2 py-2 mb-2 rounded-xl">
+          <div className="w-8 h-8 rounded-full bg-blue-600/20 flex items-center justify-center text-sm font-bold text-blue-400 shrink-0">
+            {user?.username.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate text-foreground">{user?.name || user?.username}</p>
+            <p className="text-xs text-muted-foreground">{roleLabel}</p>
+          </div>
+        </div>
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10 text-sm"
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+        >
+          <LogOut className="h-4 w-4 mr-2" />
+          Chiqish
+        </Button>
+      </div>
+    </>
+  );
 
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-card flex flex-col">
-        <div className="p-6 flex items-start justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center font-bold text-white">
-                R
-              </div>
-              RestoCRM
-            </h1>
-            {user?.venueName && (
-              <p className="text-sm text-muted-foreground mt-2 truncate">{user.venueName}</p>
-            )}
-          </div>
-          <ThemeToggle className="text-muted-foreground hover:text-foreground mt-0.5" />
-        </div>
-
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {links.map((link) => {
-            const isActive =
-              location === link.href || location.startsWith(`${link.href}/`);
-            return (
-              <Link key={link.href} href={link.href} className="block">
-                <div
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${
-                    isActive
-                      ? "bg-blue-600/10 text-blue-500 font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  }`}
-                >
-                  <link.icon className="h-4 w-4" />
-                  {link.label}
-                </div>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-border">
-          <div className="flex items-center gap-3 px-3 py-2 mb-2">
-            <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium text-foreground">
-              {user?.username.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate text-foreground">{user?.name || user?.username}</p>
-              <p className="text-xs text-muted-foreground">{roleLabel}</p>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-muted-foreground hover:text-red-500 hover:bg-red-500/10"
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Chiqish
-          </Button>
-        </div>
+      {/* ── Desktop sidebar ── */}
+      <aside className="hidden md:flex w-64 border-r border-border bg-card flex-col shrink-0">
+        <SidebarContent />
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-background">
-        <div className="flex-1 overflow-auto p-6 md:p-8">{children}</div>
+      {/* ── Mobile overlay backdrop ── */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* ── Mobile slide-in sidebar ── */}
+      <aside className={`fixed top-0 left-0 z-50 h-full w-72 bg-card border-r border-border flex flex-col transition-transform duration-300 md:hidden ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
+        <SidebarContent />
+      </aside>
+
+      {/* ── Main content ── */}
+      <main className="flex-1 flex flex-col overflow-hidden bg-background min-w-0">
+        {/* Mobile top bar */}
+        <header className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-card shrink-0">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 -ml-1 rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent active:scale-95 transition-all"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <span className="font-semibold text-foreground text-sm">
+              {links.find((l) => location === l.href || location.startsWith(`${l.href}/`))?.label ?? "RestoCRM"}
+            </span>
+            {user?.venueName && (
+              <span className="text-xs text-muted-foreground ml-2">· {user.venueName}</span>
+            )}
+          </div>
+          <div className="shrink-0 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-blue-600/20 flex items-center justify-center text-xs font-bold text-blue-400">
+              {user?.username.charAt(0).toUpperCase()}
+            </div>
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-auto p-4 md:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   );
