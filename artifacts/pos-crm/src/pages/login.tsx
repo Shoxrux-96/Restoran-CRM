@@ -46,10 +46,26 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-background p-4">
-      <div className="absolute top-4 right-4">
-        <ThemeToggle className="text-muted-foreground" />
-      </div>
+    <div className="min-h-screen w-full flex flex-col bg-background">
+      {/* Navbar */}
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <button onClick={() => setLocation("/")} className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white text-sm">R</div>
+            <span className="font-semibold text-lg tracking-tight text-foreground">RestoCRM</span>
+          </button>
+          <nav className="flex items-center gap-1">
+            <button
+              onClick={() => setLocation("/")}
+              className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-white/5"
+            >
+              Bosh sahifa
+            </button>
+            <ThemeToggle className="text-muted-foreground" />
+          </nav>
+        </div>
+      </header>
+      <div className="flex-1 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-card border-border text-foreground shadow-lg">
         <CardHeader className="space-y-1 text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -95,6 +111,7 @@ export default function Login() {
           </form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import { Layout } from "@/components/layout";
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/login";
+import Home from "@/pages/home";
 
 import OwnerDashboard from "@/pages/owner/dashboard";
 import OwnerVenues from "@/pages/owner/venues";
@@ -74,7 +75,7 @@ function RootRedirect() {
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={RootRedirect} />
+      <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
 
       {/* Owner routes */}
